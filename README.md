@@ -18,4 +18,4 @@
   - ORB and DRB were removed because Total rebounds was a cumulative stat of the two
   - 2 pointers,3 pointers and FG made were all removed because they directly indicate points made and we believed it could cause problems with overfitting
 - Next we filled in the null values of our columns
-  - 
+  - a
