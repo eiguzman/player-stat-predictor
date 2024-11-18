@@ -32,5 +32,8 @@
 - Using SciKitlearn Linear Regression library, we created a linear regression model and trained on our training data
 - Using MSE as our cost function we had a cost of .81 from our testing data and .76 from our training data
 
+### Our model on the fitting graph
+With our model being quite simple, our nearly identical training and testing error, which are characteristics or a model on the left end of the fitting graph. For our next model, we are thinking of trying polynomial regression models because of the added complexities of adding the polynomial terms of the original features.
+
 ## Conclusion
 The conclusion of our 1st model shows our model can achieve a moderate level of accuracy in predicting PPG. To improve our model in the future, we might want to exclude most of the data from 1950s to 1980s because lots of the data had to be imputed and are carried by global averages. 
