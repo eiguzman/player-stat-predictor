@@ -6,7 +6,7 @@
 - use min-max scaling to normalize the features
 
 
-### How we preprocessed the data
+### How we preprocessed the data 
 #### Encoding
 - We performed one-hot encoding for categorical variables Team (`Tm`) and Position(`Pos`).
 - Included a `dummy_na=True` parameter to handle missing values during encoding.
@@ -18,4 +18,19 @@
   - ORB and DRB were removed because Total rebounds was a cumulative stat of the two
   - 2 pointers,3 pointers and FG made were all removed because they directly indicate points made and we believed it could cause problems with overfitting
 - Next we filled in the null values of our columns
-  - a
+  - The columns of observations are filled with the mean values from their respective year to ensure the data aligns with the style and era of basketball played.
+  - We manually punched in null values in MP by the global average of minutes played divided by global average of Games played because we encountered problems with small game sizes from player to player.
+  - The last drop is to make sure that any null values remaining are dropped and don't cause a problem
+#### Changing Stats to Per game
+- We changed Points, Rebounds,Assists, Minitues played, Field Goal Attemptes, 3 Point Attempts, 2 point Atttempts, and Free Throw Attempts to their per game variations because we want to be able to predict points per game of future players
+
+#### Scaling our data and Splitting the data
+-To improve the performance and accuracy of our linear regression model, we scaled our input data using Min-Max normalization to prevent features of large range from dominating the results
+-We split our training and testing sizes 80:20 using sk:learn
+-y_train and y_test serve as ground truth labels, representing the actual points per game derived from our dataset. These values were calculated by dividing each player’s total points in the season by the number of games played, providing a reliable basis for evaluating the model's predictions.
+### Training Our First Model and How it performed
+-Using SciKitlearn Linear Regression library, we created a linear regression model and trained on our training data
+-Using MSE as our cost function we had a cost of .81 from our testing data and .76 from our training data
+
+## Conclusion
+The conclusion of our 1st model shows our model can achieve a moderate level of accuracy in predicting PPG. To improve our model in the future, we might want to exclude most of the data from 1950s to 1980s because lots of the data had to be imputed and are carried by global averages. 
