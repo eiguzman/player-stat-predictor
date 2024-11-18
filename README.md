@@ -12,4 +12,10 @@
 - Included a `dummy_na=True` parameter to handle missing values during encoding.
 
 #### Imputing Null Values
-- We began by dropping our null values for Team, Player, Position, Year, and Games played because the percentage makeup of our data was very small
+- We begin by dropping unwanted values
+  - unnamed: 0, blanl, blank2 were removed because they were empty/meaningless values
+  - GS, Player were dropped because we didn't think GS would be a good predictor and Player name wouldn't also matter at all
+  - ORB and DRB were removed because Total rebounds was a cumulative stat of the two
+  - 2 pointers,3 pointers and FG made were all removed because they directly indicate points made and we believed it could cause problems with overfitting
+- Next we filled in the null values of our columns
+  - 
