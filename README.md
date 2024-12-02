@@ -35,5 +35,26 @@
 ### Our model on the fitting graph
 With our model being quite simple, our nearly identical training and testing error, which are characteristics or a model on the left end of the fitting graph. For our next model, we are thinking of trying polynomial regression models because of the added complexities of adding the polynomial terms of the original features.
 
-## Conclusion
+### Conclusion 1st Model
 The conclusion of our 1st model shows our model can achieve a moderate level of accuracy in predicting PPG. To improve our model in the future, we might want to exclude most of the data from 1950s to 1980s because lots of the data had to be imputed and are carried by global averages. 
+
+## Our second Model
+Our second Model was a polynomial regression that would be  to be able to read complex statlines like(WS, BPM, PER) in order to predict the more complicated
+effect they had on PPG. We tested out multiple different degrees for the polynomial degrees ultimately deciding that 3rd degree polynomials was the right balance
+between performance and complexity
+
+### How it fits on the fitting graph
+Our model lies in the middle of this fitting graph, where degree equals 3. A decently complex model, which makes sure we are not underfitting while also minimizing the difference between our training and testing error
+
+### Conclusion 2nd Model
+Overall compared to our first model, we observed a large increase in performance, with our model more accurately determining PPG by .5 points better.
+With the added complexity of the polynomial terms, we were able to challenge the underfitting problem we encountered with our first simple linear regression model.
+In order to make it better: 
+- We could of have had possible overfitting from all of the imputed data, that largely makes up players pre 1980s era. Training without so much imputed data can lead to better predictions
+- To tackle the problem of overfitting that could result of the higher degree polynomials, adding a regularization term to emphasize the cost of large values may lead to better performance
+- If our model is too reliant on the polynomial terms we can instead try something like a Decisicion Tree Regression that isn't linear and manually creates new features.
+
+### FNFP and Correct
+Correct Values:  3736
+FNFP Values:  1092
+These values were gotten when our model was within .5 of the true value of the PPG. Although our model had showcased a small error cost, in the context of sports betting such small values can derail a possible hit which is a small problem with our model.
