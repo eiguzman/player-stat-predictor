@@ -13,39 +13,61 @@ The project’s broader impact lies in the ability to enhance basketball analyti
 
 
 ## Figures (need to provide explanation and elaboration??!!)
-The dataset spans from 1950s and contains key statistics for players across multiple teams.
-
-1. Team Distribution:
-
-- Largest pool: 'TOT' (>2000 players)
-- Second largest: 'NYK' (~1050 players)
-- Third largest: 'BOS' (~1000 players)
-![alt text](/figures/image.png)
-Figure 1.1: Distribution of individuals in each team
-
-
-2. Visualization of relationship between each player feature
-
-At a glance, we can see that PTS are generally normally distributed. We also observe a linear relationship between PTS and FGA, and PTS and FTA.
-![alt text](/figures/image-1.png)
-Figure 1.2: Pair plot of Player Features
-
-
-3. Correlation between each player feature
-
-The strongest correlations were between: FGA and PTS at 0.99, followed by MP and PTS, and MP and FGA at 0.93.
-![alt text](/figures/image-2.png)
-Figure 1.3: Correlation Heatmap of Player Features
-
-4. Missing Data
-
-We notice that `blanl` and `blank2` have the most missing values of greater than 20,000. There were also significant missing values in `3P%` of more than 9,000, followed by `3PAr, GS, TOV and USG` at about 5,000 data points each.
 
 
 ## Methods
 
 1. Data Exploration and Results
+
+The dataset spans from 1950s and contains key statistics for players across multiple teams.
+
+1.1 Team Distribution:
+
+  - Largest pool: 'TOT' (>2000 players)
+  - Second largest: 'NYK' (~1050 players)
+  - Third largest: 'BOS' (~1000 players)
+  ![alt text](/figures/image.png)
+  Figure 1.1: Distribution of individuals in each team
+
+
+1.2 Visualization of relationship between each player feature
+
+  At a glance, we can see that Points (`PTS`) are generally normally distributed. We also observe a linear relationship between Points (`PTS`) and Field Goals Attempted (`FGA`), and Points (`PTS`) and Free Throws Attempted (`FTA`).
+  ![alt text](/figures/image-1.png)
+  Figure 1.2: Pair plot of Player Features
+
+
+1.3 Correlation between each player feature
+
+  The strongest correlations were between: Field Goals Attempted (`FGA`) and Points (`PTS`) at 0.99, followed by Minutes Played (`MP`) and Points (`PTS`), and Minutes Played (`MP`) and Field Goals Attempted (`FGA`) at 0.93.
+  ![alt text](/figures/image-2.png)
+  Figure 1.3: Correlation Heatmap of Player Features
+
+1.4 Missing Data
+
+  We notice that `blanl` and `blank2` have the most missing values of greater than 20,000. There were also significant missing values in the Percentage of 3-Point Field Goal Percentage (`3P%`) of more than 9,000, followed by 3-Point Field Goals Attempted (`3PAr`), Games Started (`GS`), Team's Turnovers (`TOV`) and Usage Rate (`USG`) at about 5,000 data points each.
+
+
+
 2. Data Preprocessing
+
+2.1 Encoding
+
+  One-hot encoding was applied to categorical variables like Team (Tm) and Position (Pos), incorporating dummy_na=True for handling missing values.
+
+2.2 Null Value Imputation
+
+  We decided to drop columns with excessive or irrelevant missing data (`blanl`, `blank2`, `GS`, and `Player`) as identified in our exploratory data analysis. We combined these 2 related features Offensive Rebound (`ORB`) and Defensive Rebound (`DRB`) into Total Rebounds (`TRB`) **(+ REASON!)**. For the remaining missing values, we wll impute them using the mean values adjusted for the corresponding year to align wht the playing style of that era. While for Minutes Played (`MP`), the missing values were filled by the global average minutes per game. Final cleanup ensured no remaining null values.
+
+2.3 Feature Engineering
+
+  Converted total statistics like Points (`PTS`), Total Rebounds By Team (`TRB`), and Assists (`AST`) to per-game averages by dividing by games played (G) such that it was more fair for comparison among individuals
+
+2.4 Scaling and Splitting
+
+  We decided to use Min-max scaling to normalize the features. We also split the dataset into 80% training and 20% testing sets. Ground truth labels (y_train and y_test) were derived from the calculated `PTS_per_game`.
+
+
 3. Models
 
 Model 1: Linear Regression
