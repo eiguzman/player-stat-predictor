@@ -16,6 +16,7 @@ The project’s broader impact lies in the ability to enhance basketball analyti
 The dataset spans from 1950s and contains key statistics for players across multiple teams.
 
 1. Team Distribution:
+
 - Largest pool: 'TOT' (>2000 players)
 - Second largest: 'NYK' (~1050 players)
 - Third largest: 'BOS' (~1000 players)
@@ -24,17 +25,20 @@ Figure 1.1: Distribution of individuals in each team
 
 
 2. Visualization of relationship between each player feature
+
 At a glance, we can see that PTS are generally normally distributed. We also observe a linear relationship between PTS and FGA, and PTS and FTA.
 ![alt text](/figures/image-1.png)
 Figure 1.2: Pair plot of Player Features
 
 
 3. Correlation between each player feature
+
 The strongest correlations were between: FGA and PTS at 0.99, followed by MP and PTS, and MP and FGA at 0.93.
 ![alt text](/figures/image-2.png)
 Figure 1.3: Correlation Heatmap of Player Features
 
 4. Missing Data
+
 We notice that `blanl` and `blank2` have the most missing values of greater than 20,000. There were also significant missing values in `3P%` of more than 9,000, followed by `3PAr, GS, TOV and USG` at about 5,000 data points each.
 
 
