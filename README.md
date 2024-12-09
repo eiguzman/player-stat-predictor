@@ -1,4 +1,55 @@
-# CSE151AGroupProject
+# CSE151AGroupProject - NBA Player Scoring Prediction
+
+## Introduction to our project
+Our project looks to examine the key factors influencing NBA player scoring, utilizing a comprehensive dataset of player statistics from 1950 to 2017. By examining a wide range of features from our dataset—including player position, minutes played, field goal percentage, and usage rate—we seek to identify the elements that contribute most significantly to a player's scoring ability, and to be able to predict future stats with our supervised learning model (supervised because we have quantitative labeled data). In addition, we want to know which combinations of these features are the best predictors for high point totals in an NBA player's entire career. The insights gained from this study can be a valuable resource for sports bettors, fantasy basketball players, and even the coaches or GMs who manage the team themselves when trying to pick players with the best scoring potential.
+
+
+
+## Figures (need to provide explanation and elaboration??!!)
+Distribution of the individuals in each team.
+![alt text](image.png)
+
+Pair plot of the Player Features
+![alt text](image-1.png)
+
+Correlation Heatmap of Player Features
+![alt text](image-2.png)
+
+
+
+## Methods
+
+1. Data Exploration and Results
+2. Data Preprocessing
+3. Models
+
+Model 1: Linear Regression
+Model 2: Polynomial Regression
+Model 3: PCA and SVD
+
+## Results
+1. Model Performance
+
+## Discussion
+
+## Conclusion
+
+## Statement of Collaboration (please add on)
+
+1. Alex Sieh: Conducted preliminary research on the dataset. Worked on the abstract
+2. Dionne Leow: Helped with data cleaning and preprocessing. Also wrote the final write up of the Readme.
+3. Edgar Guzman: Contributed to data preprocessing. Developed model 3, experimenting with PCA and SVDs to improve our model.
+4. Jonathan Duong: Helped with data cleaning and preprocessing. Contributed to the creation of model 1 and 2.
+5. Ryan Chon: Helped with data cleaning and preprocessing. Wrote up the Readme for milestone 3 and 4.
+
+
+
+
+
+
+
+# PREVIOUS SUBMISSIONS:
+
 ### How will you preprocess your data:
 - to (one-hot) encode categorical data like Team, Positions
 - for null/nan values, we will replace it with an adjusted mean values
