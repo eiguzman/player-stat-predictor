@@ -773,10 +773,10 @@ This progression underscores the importance of iterative experimentation, featur
 # 6. Statement of Collaborations
 Alex Sieh: Conducted preliminary research on the dataset.
 
-Dionne Leow: Contributed to the data cleaning and visualization. Contributed to the final write up - model 3 description and comments, making final edits
+Dionne Leow: Contributed to the data cleaning and visualization. Contributed to model 3 description and making final edits of the ReadMe.
 
 Edgar Guzman: Developed model 3, experimenting with PCA and SVDs to improve our model.
 
-Jonathan Duong: Contributed to data preprocessing.
+Jonathan Duong: Contributed to data extraction, cleaning, visualisation and preprocessing.
 
-Ryan Chon: In charge of the polynomial model, as well as write up and reasoning. Contributed to every section of final writeup
+Ryan Chon: In charge of the polynomial model, as well as write up and reasoning. Contributed to every section of final writeup.
