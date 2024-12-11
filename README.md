@@ -20,7 +20,7 @@ Our project focuses on developing a supervised learning model designed to predic
 - Offensive Box Plus-Minus (OBPM)
 - Offensive Win Shares (OWS)
 
-The [dataset](path/to/your/dataset.csv) we used contained information on **24,000 NBA player seasons**, providing a good sample size to shape our model to.
+The [dataset](path/to/your/dataset.csv) we used contained information collected from the 1950s on **24,000 NBA player seasons**, providing a good sample size to shape our model to.
 
 ## Key Insights
 This model aims to predict PPG by incorporating features that are less prone to early-season/bad shooting stretch variance which. It can account for temporary slumps (e.g., in shooting efficiency) and project a player's **overall scoring trajectory** for the season with greater stability.
@@ -29,20 +29,44 @@ This model aims to predict PPG by incorporating features that are less prone to 
 - **Betting Predictions:** Accurate PPG forecasts can inform predictive models for betting markets, enhancing decision-making in wagering scenarios.
 - **Performance Evaluation:** NBA analysts and teams could use this tool to estimate a player's potential for accolades like **Most Valuable Player (MVP)** considering the importance of scoring in such an award.
 
-# 2. Methods
-## Data Exploration
+
+# 2. Figures
+
+# 3. Methods
+## Data Exploration and Results
 Main data exploration tools used were from numPy and Pandas libraries.
-- **Importing our data:** our data came in the form of an csv. We stored the file in our GitHub Repositry and read it using:
+- **Importing our data:** our data came in the form of an csv. We stored the file in our GitHub Repository and read it using:
   
  ```nbadf = pd.read_csv('CSE151AGroupProject/Seasons_Stats.csv')```
 
  - **Understanding Our Data**  
-   - **Getting a baseline:** we executed several lines of code in order to understand our dat better
+   - **Getting a baseline:** we executed several lines of code in order to understand our data better
      - **Discovering features**  ```nbadf.dtypes```
      - **Looking into our Categorical Features**: 
        - ```#for positions print(nbadf.Pos.unique())```
      - **Accessing Distribution:** ```nbadf.describe()```
-     - **Counting Mean:** ```nbadf.isnull().sum()``` 
+     - **Counting Mean:** ```nbadf.isnull().sum()```
+
+We performed our exploratory data analysis and obtained the following results
+**3.1 Team Distribution**
+
+- Largest pool: 'TOT' (>2000 players)
+- Second largest: 'NYK' (~1050 players)
+- Third largest: 'BOS' (~1000 players)
+
+**3.2 Visualization of relationship between each player feature**
+
+  At a glance, we can see that Points (`PTS`) are generally normally distributed. We also observe a linear relationship between Points (`PTS`) and Field Goals Attempted (`FGA`), and Points (`PTS`) and Free Throws Attempted (`FTA`).
+  
+**3.3 Correlation between each player feature**
+
+  The strongest correlations were between: Field Goals Attempted (`FGA`) and Points (`PTS`) at 0.99, followed by Minutes Played (`MP`) and Points (`PTS`), and Minutes Played (`MP`) and Field Goals Attempted (`FGA`) at 0.93.
+
+**3.4 Missing Data**
+
+  We notice that `blanl` and `blank2` have the most missing values of greater than 20,000. There were also significant missing values in the Percentage of 3-Point Field Goal Percentage (`3P%`) of more than 9,000, followed by 3-Point Field Goals Attempted (`3PAr`), Games Started (`GS`), Team's Turnovers (`TOV`) and Usage Rate (`USG`) at about 5,000 data points each.
+
+
      
 ## Preproccessing
 
@@ -69,7 +93,7 @@ Main data exploration tools used were from numPy and Pandas libraries.
    - Applied one-hot encoding to categorical features: `Tm` (Team) and `Pos` (Position).
    - See corresponding code in **Line 26**.
 
-5. **Filtering Features to Per Game Statistics:**
+5. **Feature Engineering: Filtering Features to Per Game Statistics:**
    - Converted raw features like `PTS`, `TRB`, `AST`, etc., into per-game statistics by dividing by the number of games (`G`).
    - Removed the original columns after computing the per-game values.
    - See corresponding code in **Lines 28-36**.
