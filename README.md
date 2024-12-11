@@ -52,7 +52,7 @@ Main data exploration tools used were from numPy and Pandas libraries.
 We first want to get a sense of how our dataset is like in terms of the values - the data type and number of null values. From looking at the first 20 values of our data, we see early NBA did not keep track of all statistics like they do now. As such we needed to consider how many null values we have in the dataset.
 ![alt text](./Imgs/Data%20Explolration/Head.png)
 <div style="text-align: center;">
-<small><i>Figure 1.1 First 20 rows of the dataframe</i></small>
+<small><i>Figure 1.1: First 20 rows of the dataframe</i></small>
 </div>
 
 
@@ -62,7 +62,7 @@ We count the number of null values for each attribute. This gives us an idea of 
 
 <img src="./imgs/Data%20Explolration/NullValues.png" alt="Null Values" width="150">
 <div style="text-align: center;">
-<small><i>Figure 1.2 Top 28 Attributes with Null Values </i></small>
+<small><i>Figure 1.2: Top 28 Attributes with Null Values </i></small>
 </div>
 <br/>
 
@@ -83,7 +83,7 @@ plt.show()
 
 ![alt text](./Imgs/Data%20Explolration/plot1.png)
 <div style="text-align: center;">
-<small><i>Figure 1.3 Pair plot of Features</i></small>
+<small><i>Figure 1.3: Pair plot of Features</i></small>
 </div>
 <br/>
 
@@ -109,7 +109,7 @@ plt.show()
     <img src="./Imgs/Data%20Explolration/plot2.png" alt="plot2" style="width: 60%; height: auto;">
 </div>
 <div style="text-align: center;">
-<small><i>Figure 1.4 Correlation heatmap of dataset attributes</i></small>
+<small><i>Figure 1.4: Correlation heatmap of dataset attributes</i></small>
 </div>
 
      
@@ -117,6 +117,10 @@ plt.show()
 
 ### Steps Included:
 ![Preproccessing](./Imgs/Processing%20Code.png)
+<div style="text-align: center;">
+<small><i>Figure 1.5: Preprocessing Code</i></small>
+</div>
+
 1. **Removing Unwanted/Invalid Features:**
    - Removed features containing unusable data: `Unnamed: 0`, `blanl`, `blank2`.
    - Excluded features deemed unnecessary: `GS`, `Player`.
@@ -270,6 +274,10 @@ print('Cross-Validation Scores:', -cv_scores)
 ## Model 3
 In our third model, we decided to group the `PPG` into 4 different category and use the bins as our output instead.
 ![alt text](/Imgs/Model3/bins.png)
+<div style="text-align: center;">
+<small><i>Figure 1.6: Table showing the different bins</i></small>
+</div>
+
 We create a new column in the dataframe with the following code:
 
 ```python
@@ -312,7 +320,22 @@ plt.grid()
 plt.show()
 ```
 
-From our PCA plot, we will identify the best number of components to use (in this case would be 3). 
+We also plot the Cumulative Explained Variance to be able to identify the best number of components and the variance explained.
+``` python
+cumulative_variance = np.cumsum(ev)
+plt.figure(figsize=(10, 6))
+plt.plot(range(1, len(cumulative_variance) + 1), cumulative_variance, marker='o', linestyle='--')
+plt.title('Cumulative Explained Variance Plot')
+plt.xlabel('n_components')
+plt.ylabel('Cumulative Explained Variance')
+plt.xticks(np.arange(1, len(cumulative_variance) + 1, 1))
+plt.grid()
+plt.axhline(y=0.90, color='r', linestyle='--')  # threshold at 90%
+plt.show()
+```
+
+
+From our PCA and Cumulative Explained Variance plot, we will identify the best number of components to use (in this case would be 3). 
 
 Firstly we will create a PCA with 3 components and identify the feature with the highest positive weight.
 ```python
@@ -358,7 +381,8 @@ right_matrix.shape # lets check the shape
 
 left_matrix = pd.DataFrame(svd.fit_transform(X_train))/ sv
 left_matrix.shape
-
+```
+```
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report, accuracy_score
 
@@ -391,39 +415,48 @@ print("\nClassification Report:\n", classification_report(y_train, y_pred2))
 
 ## Data Preprocessing
 After all prepocessing was finished, our new dataframe ends up looking like: 
-![fafaf](./Imgs/DataPrep/DF.png/)
+![fafaf](./Imgs/DataPrep/DF.png)
+<div style="text-align: center;">
+<small><i>Figure 2.1: Processed dataframe</i></small>
+</div>
 
-Our null values have become zero as desired as well:
 
-![fafaf](./Imgs/DataPrep/Null.png/)
+The number of null values have become zero as desired as well:
+
+![fafaf](./Imgs/DataPrep/Null.png)
+<div style="text-align: center;">
+<small><i>Figure 2.2: Number of null values for each feature</i></small>
+</div>
 
 
 Check our X train and X test are normalized and sizes are looking right:
-<div style="text-align: center;">
-    <img src="./Imgs/Model 1/XtestScaled.png" alt="plot2" style="width: 100%; height: auto;">
-</div>
-<div style="text-align: center;">
-<small><i>XTestScaled</i></small>
-</div>
 
 <div style="text-align: center;">
     <img src="./Imgs/Model 1/XTrainScaled.png" alt="plot2" style="width: 100%; height: auto;">
 </div>
 <div style="text-align: center;">
-<small><i>XTrainScaled</i></small>
+<small><i>Figure 2.3: XTrainScaled Table</i></small>
 </div>
 
+<div style="text-align: center;">
+    <img src="./Imgs/Model 1/XtestScaled.png" alt="plot2" style="width: 100%; height: auto;">
+</div>
+<div style="text-align: center;">
+<small><i>Figure 2.4: XTestScaled Table</i></small>
+</div>
+
+
+We output the proportion of data points in our X_train and X_test below:
 <div style="text-align: center;">
     <img src="./Imgs/Model 1/split.png" alt="plot2" style="width: 100%; height: auto;">
 </div>
 <div style="text-align: center;">
-  <small><i>X_train Shape (above)</i></small><br>
-  <small><i>X_test Shape (Below)</i></small>
+  <small><i>Figure 2.5: proportions of X_train and X_test respectively</i></small><br>
 </div>
 
 ## Model 1
 **Running Model 1**: 
-- Our first output for our Linear regression model outputted as
+- Our first output for our Linear regression model outputted as:
 ```python
 Training MSE: 0.52
 Testing MSE: 0.50
@@ -432,11 +465,11 @@ Testing MSE: 0.50
 To find out why MSE was so low we plotted this correlation matrix.
 ![a](./Imgs/Model%201/Correlation.png)
 <div style="text-align: center;">
-  <small><i>Correlation matrix of features</i></small>
+  <small><i>Figure 2.6: Correlation matrix of features</i></small>
 </div>
 
 
-Running Linear model without `FGA_per_game` results in 
+Running Linear model without `FGA_per_game` results in:
 
  
 ```python
@@ -444,7 +477,7 @@ Training MSE for no FGA: 1.65
 Testing MSE for no FGA: 1.59
 ```
  
- We then check for overfitting using Kfold Cross validation for first run of model
+ We then check for overfitting using Kfold Cross validation for first run of model, with the following results:
 ```python
 Cross-Validation Scores: [0.46139252 0.48908755 0.5362284  0.48781997 0.54074659 0.49958713
  0.50085788 0.52959658 0.53930553 0.60954084]
@@ -452,7 +485,7 @@ Cross-Validation Scores: [0.46139252 0.48908755 0.5362284  0.48781997 0.54074659
 
 ## Model 2
 
-After implementation of our second model we printed out the MSE between the training and testing as well as their differences against degree (complexity) 
+After implementation of our second model we printed out the MSE between the training and testing as well as their differences against degree (complexity).
 ```python
 Polynomial Regression (Degree=1)
 Train MSE: 1.65
@@ -468,27 +501,30 @@ Train MSE: 0.21
 Test MSE: 88.83
 ```
 
+We observe that the elbow of the fitting graph lies when the polynomial degree is 3.
+
 ![a](./Imgs/Model2/FittingGraph.png)
 <div style="text-align: center;">
-  <small><i>Fitting Graph all 4 degrees</i></small>
+  <small><i>Figure 2.7: Fitting Graph all 4 degrees</i></small>
 </div>
 
 ![a](./Imgs/Model2/FittingGraph2.png)
 <div style="text-align: center;">
-  <small><i>Fitting Graph 3 degrees</i></small>
+  <small><i>Figure 2.8: Fitting Graph 3 degrees</i></small>
 </div>
 
 
 
-Checking for overfitting based on KFold Cross Validation we got : 
+Checking for overfitting based on KFold Cross Validation we got: 
 ``` python
 Cross-Validation Scores (MSE): [ 0.43217879  0.46648901  0.43258806  0.57135784  0.39732678  0.51268138
   0.67144083 14.51494587  0.82262654  0.52637149]
 ```
 
 ### Checking Accuracy
-By checking the point differential we concluded our model was able to predict
+By checking the point differential we concluded our model was able to predict the following metrics:
 ```python
+Accuracy = 0.69198
 Correct Values: 3408
 FNFP Values: 1517
 FNFP between 0.5 and 1: 1055
@@ -497,7 +533,7 @@ FNFP between 2.5 and 5: 25
 FNFP between 5 and 10: 5
 ```
 
-Considering the range of point typically is between 6 to 27, 
+Considering the range of points typically is between 6 to 27, 
 we classified as followed:
 
 
@@ -513,9 +549,51 @@ Allowable Correctness : 90.62%
 
 ## Model 3
 
+We plot the following scree plot and cumulative explained variance plot to identify the number of componenets to retain in our model.
+![alt text](/Imgs/Model3/screeplot.png)
+<div style="text-align: center;">
+  <small><i>Figure 2.9: Screeplot generated from PCA</i></small>
+</div>
+
+![alt text](/Imgs/Model3/CumulativeExplainedVariancePlot.png)
+<div style="text-align: center;">
+  <small><i>Figure 2.10: Plot of Cumulative Explained Variance</i></small>
+</div>
+
+From the above plots, we identified n_components=3 to be the best number of components as the curve starts to flatten out beyond that point.
 
 
+We plotted a PCA cluster plot to be able to identify the clustering. 
 
+![alt text](/Imgs/Model3/PCAclusters.png)
+<div style="text-align: center;">
+  <small><i>Figure 2.11: Plot of PCA clusters</i></small>
+</div>
+
+
+We also used SVD to fit the 3 components. This is the visualisation of our SVD in the form of a pairplot, showing each of the 3 components of the left and right matrices that we have created.
+
+![alt text](/Imgs/Model3/LeftMatPairplot.png)
+<div style="text-align: center;">
+  <small><i>Figure 2.12: Pairplot of left matrix</i></small>
+</div>
+
+![alt text](/Imgs/Model3/RightMatPairplot.png)
+<div style="text-align: center;">
+  <small><i>Figure 2.13: Pairplot of right matrix</i></small>
+</div>
+
+We implemented a logistic regression for our third model using the transformed SVD as inputs. 
+
+These are the output when we ran our train and test values:
+![alt text](/Imgs/Model3/LogTrain.png)
+<div style="text-align: center;">
+  <small><i>Figure 2.14: Accuracy and Classification Report for Train</i></small>
+</div>
+![alt text](/Imgs/Model3/LogTest.png)
+<div style="text-align: center;">
+  <small><i>Figure 2.15: Accuracy and Classification Report for Test</i></small>
+</div>
 
 
 
