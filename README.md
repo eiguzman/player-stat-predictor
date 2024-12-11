@@ -586,11 +586,12 @@ We also used SVD to fit the 3 components. This is the visualisation of our SVD i
 We implemented a logistic regression for our third model using the transformed SVD as inputs. 
 
 These are the output when we ran our train and test values:
-![alt text](/Imgs/Model3/LogTrain.png)
+![alt text](/Imgs/Model3/logTrain.png)
 <div style="text-align: center;">
   <small><i>Figure 2.14: Accuracy and Classification Report for Train</i></small>
 </div>
-![alt text](/Imgs/Model3/LogTest.png)
+
+![alt text](/Imgs/Model3/logTest.png)
 <div style="text-align: center;">
   <small><i>Figure 2.15: Accuracy and Classification Report for Test</i></small>
 </div>
@@ -624,6 +625,10 @@ These are the output when we ran our train and test values:
 - **Global Average for `MPG`:**  
   - The global average was used to impute missing values for `MPG` (Minutes Per Game). Unlike other per-game statistics, `MPG` had a significantly higher proportion of missing values. Filling these gaps using year-specific averages resulted in impossible values (e.g., minutes exceeding a game's total duration). Hence, the global average was deemed more reliable for consistency.
 - **Ensure excluding NaN** This step was done to make sure we aren't getting any null values in our data, and we determined the loss of observations is negligble compared to the size of our dataset
+
+
+
+
 
 ## Model 1
 
@@ -660,6 +665,11 @@ These are the output when we ran our train and test values:
 - **Final Thoughts on FGA Exclusion**:  
   Removing `FGA` has helped reduce overfitting and allowed other features in the model to play a more balanced role. While the overall MSE increased, the model is now less reliant on a single dominating feature
 
+
+
+
+
+
 ## Model 2
 - **Initial Thoughts**:  
   Based on our findings from Model 1, we decided to exclude `FGA_per_game` from this model due to its dominating influence in the previous results. 
@@ -681,9 +691,85 @@ These are the output when we ran our train and test values:
 - **Final Notes**:  
   The results of Model 2 demonstrate significant improvement in generalization compared to Model 1. While the high correctness scores are promising, further refinement is necessary to address the overfitting observed in certain cross-validation subsets.
 
+
+
+
+
+
+## Model 3
+- **Initial Thoughts**: 
+  We feel that separating `PPG` into bins could yield better performance in our model in terms of accuracy, since the classification task simplifies the prediction process to determine the correct range (bin) rather than the exact numerical score. The bins are also a good indicator of how well a player is performing relative to their peers and provide a more interpretable output for assessing performance tiers.
+
+- **Initial Hyperparameter Tuning**:  
+  For this model, we tested dimensionality reduction techniques like PCA (Principal Component Analysis) and SVD (Singular Value Decomposition) to reduce the number of features while retaining the variance or meaningful components. We experimented with the following parameters:
+  - PCA: Tuned the number of principal components (n_components) between 1 and 4 to find an optimal balance between model simplicity and information retention.
+  - SVD: Tested truncation levels to determine the number of singular vectors to retain. Optimal values were found when keeping 90% of the cumulative explained variance.
+  - Logistic Regression: Explored variations in the regularization parameter (C) and penalty terms (l1 and l2) to prevent overfitting while maximizing predictive accuracy.
+
+
+  Through the PCA analysis, we found that it performs best when using 3 components (through looking at the figures 2.9 and 2.10). However, when plotting the PCA clusters, we see a very poor clustering for the following few reasons:
+  - The PCA plot exhibited a wedge-like shape, which can be traced back to the absence of negative values in the dataset. PCA assumes that the data is centered around the origin and utilizes both positive and negative feature values to form clusters. In our case, the lack of negative values limited the spread of data points along the principal components, compressing the clusters into a skewed, one-sided distribution. This shape makes it harder to distinguish meaningful groupings in the reduced feature space.
+  - Standarization was performed prior to the fitting of the PCA. The standardization may have inadvertently distorted the inherent relationships between the features, especially if some features were more informative in their raw state. This distortion could have hindered PCA's ability to accurately represent the underlying structure of the data, resulting in less effective clustering. 
+
+  We will then use SVD to address these shortcomings to reduce dimensionality as it is effective for non-negative data, it is aloso efficient in preserving feature relationships and it is compatible with sparse data.
+
+- **Model Performance**: 
+  After applying SVD, we plotted the training and validation accuracies across the logistic regression model's epochs. The fitting graph indicated that dimensionality reduction significantly stabilized the learning curve, reducing overfitting compared to the baseline logistic regression model. Training accuracy hovered around 92%, while validation accuracy reached 88%, showing a small generalization gap. The model performed well across most bins, though performance slightly decreased in underrepresented bins.
+
+  After plotting the transformed feature matrix obtained through SVD, we gained deeper insights into why our PCA approach failed to produce well-defined clusters:
+
+  - Unimodal Distribution: The vertical plots for n=2 and n=3 exhibit a predominantly unimodal distribution. This lack of multiple peaks indicates that our data does not naturally form distinct clusters. If the data had shown multiple peaks or clear separations, clustering would have been more discernible and effective.
+  - Redundancy in Information: The right matrix (with fewer observations) provides very little significant information that the left matrix does not already convey. This redundancy suggests that most of the meaningful patterns in the data are captured by the initial components, limiting the additional benefits of higher components.
+
+  With this understanding, we move forward by leveraging the transformed training data to perform logistic regression and fitted the regressor to the transformed training set.
+
+- **Calculating Correctness**:  
+  he performance of the model on the test set was evaluated using the classification report, which provides detailed insights into precision, recall, F1-score, and support for each class. The model achieved an overall accuracy of 84% across the test set, which is a strong result given the complexity of predicting binned categories. 
+  - Macro Average: Both precision, recall, and F1-score are 0.84, indicating balanced performance across all classes. This shows the model does not disproportionately favor any particular class.
+  - Weighted Average: The weighted average aligns with the macro average, as the class distribution is relatively even (as seen from the support values). This ensures that the model’s overall performance is not skewed by class imbalance.
+  - Confusion between Classes 1 and 2: The slightly lower F1-scores for Classes 1 and 2 suggest that there may be some overlap or confusion between these categories. This could stem from inherent similarities in the features of these bins, leading the model to misclassify instances between them.
+  - Strength in Extreme Classes: The model performs best on Classes 0 and 3, which likely represent the extreme ends of the binned ranges. This suggests that these classes have more distinct feature patterns, making them easier for the model to classify accurately.
+
+
+- **Final Notes**:
+  We see that this model using SVD and logistic regression performed well with a high accuracy of about 84%. This high accuracy suggests that the model generalizes well to unseen data.
+
+
 # 5. Conclusion
+
+This analysis highlights the progressive improvements and trade-offs made across the three models in predicting player performance based on key basketball statistics. By leveraging different modeling techniques, feature engineering, and dimensionality reduction approaches, we were able to draw several key insights:
+
+## Model 1 (Baseline Linear Regression):
+
+The initial linear regression model, while achieving low MSE scores, relied heavily on a single feature (FGA) to minimize error. This indicated overfitting, as the model failed to generalize well across features.
+Removing FGA increased the MSE but enabled the model to balance contributions from other features, resulting in a more interpretable and generalizable model.
+
+
+## Model 2 (Polynomial Regression):
+
+Introducing polynomial features of degree 3 improved the model's ability to capture non-linear relationships in the data, achieving high correctness rates within acceptable error margins.
+Despite promising results, spikes in cross-validation errors exposed challenges with overfitting on certain subsets, indicating the need for further refinement.
+
+
+## Model 3 (SVD + Logistic Regression):
+
+Transitioning to a classification-based approach by binning PPG into performance tiers simplified the prediction task and improved interpretability.
+Dimensionality reduction using SVD addressed the limitations of PCA and stabilized the logistic regression model, leading to a robust accuracy of 84% on the test set.
+The confusion matrix and classification report revealed strong performance in the extreme bins, with minor misclassifications in mid-range bins likely due to feature overlap.
+
+
+## Final Recommendation
+Model 3 stands out as the most effective approach for this problem, striking a balance between accuracy, generalizability, and interpretability. By focusing on classification rather than regression and leveraging dimensionality reduction, the model avoids overfitting while maintaining high performance. Future improvements could involve exploring ensemble methods or fine-tuning hyperparameters further to address the slight misclassification in mid-range bins.
+
+This progression underscores the importance of iterative experimentation, feature engineering, and appropriate evaluation metrics when tackling real-world machine learning problems.
+
+
+
 
 
 # 6. Statement of Collaborations
-Dionne Leow: Contributed to the data cleaning and visualization. Helped in model 3. Contributed to the final write up.
+Alex Sieh: Conducted preliminary research on the dataset.
+Dionne Leow: Contributed to the data cleaning and visualization. Contributed to the final write up - model 3 description and comments, making final edits
+Edgar Guzman: Developed model 3, experimenting with PCA and SVDs to improve our model.
+Jonathan Duong: Contributed to data preprocessing.
 Ryan Chon: In charge of the polynomial model, as well as write up and reasoning. Contributed to every section of final writeup
