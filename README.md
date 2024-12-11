@@ -55,9 +55,9 @@ We first want to get a sense of how our dataset is like in terms of the values -
 <small><i>Figure 1.1: First 20 rows of the dataframe</i></small>
 </div>
 
+<br/>
 
 **Null Values**
-
 We count the number of null values for each attribute. This gives us an idea of what features are good to include into our model and how we should tackle the null values. We notice that `blanl` and `blank2` have the most missing values of greater than 20,000. There were also significant missing values in the Percentage of 3-Point Field Goal Percentage (`3P%`) of more than 9,000, followed by 3-Point Field Goals Attempted (`3PAr`), Games Started (`GS`), Team's Turnovers (`TOV`) and Usage Rate (`USG`) at about 5,000 data points each.
 
 <img src="./Imgs/Data%20Explolration/NullValues.png" alt="Null Values" width="150">
@@ -66,7 +66,7 @@ We count the number of null values for each attribute. This gives us an idea of 
 </div>
 <br/>
 
-
+**Pair Plot**
 To get a basic relation of our target (`PTS`) and other features we did a simple plot against each other and found a couple of recognizable patterns(normal, linear) using this code:
  ```python
  columns = ['PTS', 'G', 'MP', 'FG%', 'FGA', 'FT%', 'FTA','BPM','WS','VORP']
@@ -87,6 +87,7 @@ plt.show()
 </div>
 <br/>
 
+**Correlation Heatmap**
 We also wanted to identify the any correlation between our features and our target variable. We do so by using a Correlation heatmap to be able to look at the relationship at a glance:
 
 ```python
