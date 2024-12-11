@@ -383,7 +383,7 @@ right_matrix.shape # lets check the shape
 left_matrix = pd.DataFrame(svd.fit_transform(X_train))/ sv
 left_matrix.shape
 ```
-```
+``` python
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report, accuracy_score
 
@@ -430,7 +430,7 @@ The number of null values have become zero as desired as well:
 </div>
 
 
-Check our X train and X test are normalized and sizes are looking right:
+Check that our X train and X test are normalized and sizes are looking right:
 
 <div style="text-align: center;">
     <img src="./Imgs/Model 1/XTrainScaled.png" alt="plot2" style="width: 100%; height: auto;">
@@ -440,7 +440,7 @@ Check our X train and X test are normalized and sizes are looking right:
 </div>
 
 <div style="text-align: center;">
-    <img src="./Imgs/Model 1/XtestScaled.png" alt="plot2" style="width: 100%; height: auto;">
+    <img src="./Imgs/Model 1/XTestScaled.png" alt="plot2" style="width: 100%; height: auto;">
 </div>
 <div style="text-align: center;">
 <small><i>Figure 2.4: XTestScaled Table</i></small>
@@ -550,7 +550,8 @@ Allowable Correctness : 90.62%
 
 ## Model 3
 
-We plot the following scree plot and cumulative explained variance plot to identify the number of componenets to retain in our model.
+We plot the following scree plot and cumulative explained variance plot to identify the number of components to retain in our model.
+
 ![alt text](/Imgs/Model3/screeplot.png)
 <div style="text-align: center;">
   <small><i>Figure 2.9: Screeplot generated from PCA</i></small>
@@ -560,6 +561,7 @@ We plot the following scree plot and cumulative explained variance plot to ident
 <div style="text-align: center;">
   <small><i>Figure 2.10: Plot of Cumulative Explained Variance</i></small>
 </div>
+
 
 From the above plots, we identified n_components=3 to be the best number of components as the curve starts to flatten out beyond that point.
 
@@ -617,7 +619,7 @@ These are the output when we ran our train and test values:
 - **`GS`, `Player`:**  
   - `Player`: We determined that the player's name would not serve as a reliable predictor for statistical performance, and one-hot encoding it would explode our dimension size.  
   - `GS`: This feature was redundant as it correlated closely with `MP` (minutes played). Starters who start games generally accumulate higher minutes, making `GS` unnecessary.  
-- **`ORB`, `DRB`****: removed because together they make up `TRB`
+- **`ORB`, `DRB`**: removed because together they make up `TRB`
 -  **`3P`, `2P`, and `FG`:** These features were removed as they are direct contributors to the target variables (e.g., Points Per Game). Including them would risk introducing bias and redundancy in the model.  
 
 #### **Handling Missing Data**  
@@ -703,9 +705,9 @@ These are the output when we ran our train and test values:
 
 - **Initial Hyperparameter Tuning**:  
   For this model, we tested dimensionality reduction techniques like PCA (Principal Component Analysis) and SVD (Singular Value Decomposition) to reduce the number of features while retaining the variance or meaningful components. We experimented with the following parameters:
-  - PCA: Tuned the number of principal components (n_components) between 1 and 4 to find an optimal balance between model simplicity and information retention.
-  - SVD: Tested truncation levels to determine the number of singular vectors to retain. Optimal values were found when keeping 90% of the cumulative explained variance.
-  - Logistic Regression: Explored variations in the regularization parameter (C) and penalty terms (l1 and l2) to prevent overfitting while maximizing predictive accuracy.
+  - **PCA**: Tuned the number of principal components (n_components) between 1 and 4 to find an optimal balance between model simplicity and information retention.
+  - **SVD**: Tested truncation levels to determine the number of singular vectors to retain. Optimal values were found when keeping 90% of the cumulative explained variance.
+  - **Logistic Regression**: Explored variations in the regularization parameter (C) and penalty terms (l1 and l2) to prevent overfitting while maximizing predictive accuracy.
 
 
   Through the PCA analysis, we found that it performs best when using 3 components (through looking at the figures 2.9 and 2.10). However, when plotting the PCA clusters, we see a very poor clustering for the following few reasons:
@@ -719,17 +721,17 @@ These are the output when we ran our train and test values:
 
   After plotting the transformed feature matrix obtained through SVD, we gained deeper insights into why our PCA approach failed to produce well-defined clusters:
 
-  - Unimodal Distribution: The vertical plots for n=2 and n=3 exhibit a predominantly unimodal distribution. This lack of multiple peaks indicates that our data does not naturally form distinct clusters. If the data had shown multiple peaks or clear separations, clustering would have been more discernible and effective.
-  - Redundancy in Information: The right matrix (with fewer observations) provides very little significant information that the left matrix does not already convey. This redundancy suggests that most of the meaningful patterns in the data are captured by the initial components, limiting the additional benefits of higher components.
+  - **Unimodal Distribution**: The vertical plots for n=2 and n=3 exhibit a predominantly unimodal distribution. This lack of multiple peaks indicates that our data does not naturally form distinct clusters. If the data had shown multiple peaks or clear separations, clustering would have been more discernible and effective.
+  - **Redundancy in Information**: The right matrix (with fewer observations) provides very little significant information that the left matrix does not already convey. This redundancy suggests that most of the meaningful patterns in the data are captured by the initial components, limiting the additional benefits of higher components.
 
   With this understanding, we move forward by leveraging the transformed training data to perform logistic regression and fitted the regressor to the transformed training set.
 
 - **Calculating Correctness**:  
   he performance of the model on the test set was evaluated using the classification report, which provides detailed insights into precision, recall, F1-score, and support for each class. The model achieved an overall accuracy of 84% across the test set, which is a strong result given the complexity of predicting binned categories. 
-  - Macro Average: Both precision, recall, and F1-score are 0.84, indicating balanced performance across all classes. This shows the model does not disproportionately favor any particular class.
-  - Weighted Average: The weighted average aligns with the macro average, as the class distribution is relatively even (as seen from the support values). This ensures that the model’s overall performance is not skewed by class imbalance.
-  - Confusion between Classes 1 and 2: The slightly lower F1-scores for Classes 1 and 2 suggest that there may be some overlap or confusion between these categories. This could stem from inherent similarities in the features of these bins, leading the model to misclassify instances between them.
-  - Strength in Extreme Classes: The model performs best on Classes 0 and 3, which likely represent the extreme ends of the binned ranges. This suggests that these classes have more distinct feature patterns, making them easier for the model to classify accurately.
+  - **Macro Average**: Both precision, recall, and F1-score are 0.84, indicating balanced performance across all classes. This shows the model does not disproportionately favor any particular class.
+  - **Weighted Average**: The weighted average aligns with the macro average, as the class distribution is relatively even (as seen from the support values). This ensures that the model’s overall performance is not skewed by class imbalance.
+  - **Confusion between Classes 1 and 2**: The slightly lower F1-scores for Classes 1 and 2 suggest that there may be some overlap or confusion between these categories. This could stem from inherent similarities in the features of these bins, leading the model to misclassify instances between them.
+  - **Strength in Extreme Classes**: The model performs best on Classes 0 and 3, which likely represent the extreme ends of the binned ranges. This suggests that these classes have more distinct feature patterns, making them easier for the model to classify accurately.
 
 
 - **Final Notes**:
@@ -770,7 +772,11 @@ This progression underscores the importance of iterative experimentation, featur
 
 # 6. Statement of Collaborations
 Alex Sieh: Conducted preliminary research on the dataset.
+
 Dionne Leow: Contributed to the data cleaning and visualization. Contributed to the final write up - model 3 description and comments, making final edits
+
 Edgar Guzman: Developed model 3, experimenting with PCA and SVDs to improve our model.
+
 Jonathan Duong: Contributed to data preprocessing.
+
 Ryan Chon: In charge of the polynomial model, as well as write up and reasoning. Contributed to every section of final writeup
