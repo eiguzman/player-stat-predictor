@@ -60,7 +60,7 @@ We first want to get a sense of how our dataset is like in terms of the values -
 
 We count the number of null values for each attribute. This gives us an idea of what features are good to include into our model and how we should tackle the null values. We notice that `blanl` and `blank2` have the most missing values of greater than 20,000. There were also significant missing values in the Percentage of 3-Point Field Goal Percentage (`3P%`) of more than 9,000, followed by 3-Point Field Goals Attempted (`3PAr`), Games Started (`GS`), Team's Turnovers (`TOV`) and Usage Rate (`USG`) at about 5,000 data points each.
 
-<img src="./imgs/Data%20Explolration/NullValues.png" alt="Null Values" width="150">
+<img src="./Imgs/Data%20Explolration/NullValues.png" alt="Null Values" width="150">
 <div style="text-align: center;">
 <small><i>Figure 1.2: Top 28 Attributes with Null Values </i></small>
 </div>
