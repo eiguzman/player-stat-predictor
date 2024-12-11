@@ -267,9 +267,122 @@ print('Cross-Validation Scores:', -cv_scores)
 
 
 
+## Model 3
+In our third model, we decided to group the `PPG` into 4 different category and use the bins as our output instead.
+![alt text](/Imgs/Model3/bins.png)
+We create a new column in the dataframe with the following code:
+
+```python
+bins = {"Low": desc["PTS_per_game"]["25%"], "Medium": desc["PTS_per_game"]["50%"], "High": desc["PTS_per_game"]["75%"]}
+print(bins)
+nbadf_2 = processed_nbadf.copy()
+
+#Convert keys into numeric vals, Very High = 3
+def PPG_binner(value):
+    if value < bins['Low']:
+        return 0
+    elif value < bins['Medium']:
+        return 1
+    elif value < bins['High']:
+        return 2
+    else:
+        return 3
+
+#Apply the function to PTS_per_game
+nbadf_2['PPG_Bins'] = nbadf_2['PTS_per_game'].apply(PPG_binner)
+nbadf_2 = nbadf_2.drop("PTS_per_game", axis=1)
+
+```
+
+We will then perform PCA using the same features as our previous model.
+``` python
+from sklearn.decomposition import PCA
+
+pca = PCA()
+pca.fit(X_train)
+
+# Scree plot
+plt.figure(figsize=(10, 6))
+plt.plot(range(1, len(ev) + 1), ev, marker='o', linestyle='--')
+plt.title('Scree Plot')
+plt.xlabel('n_components')
+plt.ylabel('Explained Variance Ratio')
+plt.xticks(np.arange(1, len(ev) + 1, 1))
+plt.grid()
+plt.show()
+```
+
+From our PCA plot, we will identify the best number of components to use (in this case would be 3). 
+
+Firstly we will create a PCA with 3 components and identify the feature with the highest positive weight.
+```python
+pca = PCA(n_components= 3)
+pca_df = pd.DataFrame(pca.fit_transform(X_train))
+pca_df['Labels'] = nbadf_2.PPG_Bins
+
+plt.figure()
+plt.scatter(pca_df[0], pca_df[1],
+            c=pca_df['Labels'],
+            alpha=0.6)
+plt.title('PCA Clusters')
+plt.xlabel('PCA1')
+plt.ylabel('PCA2')
+plt.colorbar(label='Cluster Label')
+plt.grid()
+plt.show()
 
 
+feature = 0
+hi_feat = -1
+hi_weight = -1
+for i in pca.components_[0]:
+    if i > hi_weight and i > 0:
+        hi_feat = feature
+        hi_weight = i
+    feature += 1
 
+print('Feature with the highest positive weight:')
+print(hi_feat, hi_weight)
+```
+
+We will use SVD to transform our features and will fit a logistical regression for this model.
+```python
+from sklearn.decomposition import TruncatedSVD
+
+svd = TruncatedSVD(n_components=3, n_iter=1000, random_state=76)
+svd.fit(X_train)
+sv = svd.singular_values_
+
+right_matrix = pd.DataFrame(svd.components_)
+right_matrix.shape # lets check the shape
+
+left_matrix = pd.DataFrame(svd.fit_transform(X_train))/ sv
+left_matrix.shape
+
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import classification_report, accuracy_score
+
+# Step 1: Transform both training and testing data using SVD
+X_train_svd = pd.DataFrame(svd.transform(X_train), index=X_train.index)
+X_test_svd = pd.DataFrame(svd.transform(X_test), index=X_test.index)
+
+# Step 2: Fit a classifier on the transformed training data
+classifier = LogisticRegression()
+classifier.fit(X_train_svd, y_train)
+
+# Step 3: Predict on the transformed test data
+y_pred = classifier.predict(X_test_svd)
+
+# Evaluate the model
+print("Accuracy:", accuracy_score(y_test, y_pred))
+print("\nClassification Report:\n", classification_report(y_test, y_pred))
+
+
+y_pred2 = classifier.predict(X_train_svd)
+
+print("Accuracy:", accuracy_score(y_train, y_pred2))
+print("\nClassification Report:\n", classification_report(y_train, y_pred2))
+```
 
 
 
@@ -316,7 +429,7 @@ Training MSE: 0.52
 Testing MSE: 0.50
 ```
 
-To find out why MSE was so low we 
+To find out why MSE was so low we plotted this correlation matrix.
 ![a](./Imgs/Model%201/Correlation.png)
 <div style="text-align: center;">
   <small><i>Correlation matrix of features</i></small>
