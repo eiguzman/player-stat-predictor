@@ -30,10 +30,10 @@ This model aims to predict PPG by incorporating features that are less prone to 
 - **Performance Evaluation:** NBA analysts and teams could use this tool to estimate a player's potential for accolades like **Most Valuable Player (MVP)** considering the importance of scoring in such an award.
 
 
-# 2. Figures
 
-# 3. Methods
-## Data Exploration and Results
+
+# 2. Methods
+## Data Exploration
 Main data exploration tools used were from numPy and Pandas libraries.
 - **Importing our data:** our data came in the form of an csv. We stored the file in our GitHub Repository and read it using:
   
@@ -47,25 +47,70 @@ Main data exploration tools used were from numPy and Pandas libraries.
      - **Accessing Distribution:** ```nbadf.describe()```
      - **Counting Mean:** ```nbadf.isnull().sum()```
 
-We performed our exploratory data analysis and obtained the following results
-**3.1 Team Distribution**
 
-- Largest pool: 'TOT' (>2000 players)
-- Second largest: 'NYK' (~1050 players)
-- Third largest: 'BOS' (~1000 players)
+## Data Exploration Results
+We first want to get a sense of how our dataset is like in terms of the values - the data type and number of null values. From looking at the first 20 values of our data, we see early NBA did not keep track of all statistics like they do now. As such we needed to consider how many null values we have in the dataset.
+![alt text](./Imgs/Data%20Explolration/Head.png)
+<div style="text-align: center;">
+<small><i>Figure 1.1 First 20 rows of the dataframe</i></small>
+</div>
 
-**3.2 Visualization of relationship between each player feature**
 
-  At a glance, we can see that Points (`PTS`) are generally normally distributed. We also observe a linear relationship between Points (`PTS`) and Field Goals Attempted (`FGA`), and Points (`PTS`) and Free Throws Attempted (`FTA`).
-  
-**3.3 Correlation between each player feature**
+**Null Values**
 
-  The strongest correlations were between: Field Goals Attempted (`FGA`) and Points (`PTS`) at 0.99, followed by Minutes Played (`MP`) and Points (`PTS`), and Minutes Played (`MP`) and Field Goals Attempted (`FGA`) at 0.93.
+We count the number of null values for each attribute. This gives us an idea of what features are good to include into our model and how we should tackle the null values. We notice that `blanl` and `blank2` have the most missing values of greater than 20,000. There were also significant missing values in the Percentage of 3-Point Field Goal Percentage (`3P%`) of more than 9,000, followed by 3-Point Field Goals Attempted (`3PAr`), Games Started (`GS`), Team's Turnovers (`TOV`) and Usage Rate (`USG`) at about 5,000 data points each.
 
-**3.4 Missing Data**
+<img src="./imgs/Data%20Explolration/NullValues.png" alt="Null Values" width="150">
+<div style="text-align: center;">
+<small><i>Figure 1.2 Top 28 Attributes with Null Values </i></small>
+</div>
+<br/>
 
-  We notice that `blanl` and `blank2` have the most missing values of greater than 20,000. There were also significant missing values in the Percentage of 3-Point Field Goal Percentage (`3P%`) of more than 9,000, followed by 3-Point Field Goals Attempted (`3PAr`), Games Started (`GS`), Team's Turnovers (`TOV`) and Usage Rate (`USG`) at about 5,000 data points each.
 
+To get a basic relation of our target (`PTS`) and other features we did a simple plot against each other and found a couple of recognizable patterns(normal, linear) using this code:
+ ```python
+ columns = ['PTS', 'G', 'MP', 'FG%', 'FGA', 'FT%', 'FTA','BPM','WS','VORP']
+
+# Create a PairGrid with 'PTS' as the y-axis for all other features
+g = sns.PairGrid(nbadf, y_vars=['PTS'], x_vars=columns[1:])  # Exclude 'PTS' from x_vars
+g.map(sns.scatterplot)  # Use scatter plots for visualization
+
+# Adjust layout and display
+g.fig.suptitle("Pairplot: PTS (y-axis) vs Other Features (x-axis)", y=1.02)
+plt.show()
+```
+ From the pairplot, we can see that Points (`PTS`) is generally normally distributed. We also observe a strong linear relationship between Points (`PTS`) and Field Goals Attempted (`FGA`), and Points (`PTS`) and Free Throws Attempted (`FTA`).
+
+![alt text](./Imgs/Data%20Explolration/plot1.png)
+<div style="text-align: center;">
+<small><i>Figure 1.3 Pair plot of Features</i></small>
+</div>
+<br/>
+
+We also wanted to identify the any correlation between our features and our target variable. We do so by using a Correlation heatmap to be able to look at the relationship at a glance:
+
+```python
+# Calculate the correlation matrix
+corr = processed_nbadf[['PTS_per_game','TRB_per_game', 'AST_per_game', 'MP_per_game', '3PA_per_game', '2PA_per_game', 'FTA_per_game','WS','BPM', 'PER','VORP','OBPM','Age', 'FGA_per_game']].corr()
+# Set up the figure size
+plt.figure(figsize=(12, 8))  # Adjust the width (12) and height (8) as needed
+
+# Plot the heatmap
+sns.heatmap(corr, vmin=-1, vmax=1, center=0, annot=True, cmap='RdBu')
+plt.title("Correlation Heatmap", fontsize=16)
+
+# Show the plot
+plt.show()
+```
+
+
+ The strongest correlations were between: Field Goals Attempted (`FGA`) and Points (`PTS`) at 0.99, followed by Minutes Played (`MP`) and Points (`PTS`), and Minutes Played (`MP`) and Field Goals Attempted (`FGA`) at 0.93.
+<div style="text-align: center;">
+    <img src="./Imgs/Data%20Explolration/plot2.png" alt="plot2" style="width: 60%; height: auto;">
+</div>
+<div style="text-align: center;">
+<small><i>Figure 1.4 Correlation heatmap of dataset attributes</i></small>
+</div>
 
      
 ## Preproccessing
@@ -94,12 +139,13 @@ We performed our exploratory data analysis and obtained the following results
    - See corresponding code in **Line 26**.
 
 5. **Feature Engineering: Filtering Features to Per Game Statistics:**
+   - combined 2 related features `ORB` and `DRB` into `TRB`
    - Converted raw features like `PTS`, `TRB`, `AST`, etc., into per-game statistics by dividing by the number of games (`G`).
    - Removed the original columns after computing the per-game values.
    - See corresponding code in **Lines 28-36**.
 
 6. **Splitting and Normalization**-
-   - Splitting our data into training and testing section with SKlearn train_test_split  
+   - Splitting our data into training and testing section with SKlearn train_test_split into a 80:20 ratio.
 ```python
 from sklearn.model_selection import train_test_split
 
@@ -119,7 +165,7 @@ X_test = pd.DataFrame(X_test_scaled, columns=X_test.columns, index=X_test.index)
 
 ---
 ## Model 1
-We started by implementing a simple LienarRegression from SKlearn implementation of LinearRegression using `TRB_per_game`, `AST_per_game`, `MP_per_game`, `3PA_per_game`, `2PA_per_game`, `FTA_per_game`,`Age`, and `OBPM`
+We started by implementing a simple LinearRegression from SKlearn implementation of LinearRegression over the following `TRB_per_game`, `AST_per_game`, `MP_per_game`, `3PA_per_game`, `2PA_per_game`, `FTA_per_game`,`Age`, and `OBPM`
 
 ```python
 from sklearn.linear_model import LinearRegression
@@ -138,17 +184,19 @@ yhat_train = linearreg.predict(X_train)
 testMSE = mean_squared_error(y_test, yhat_test)
 trainMSe = mean_squared_error(y_train, yhat_train)
 ```
-Our model was created and fit to our train data
+Our model was created and fit to our train data and subsequently tested on our test data.
 
 ## Model 2
-Using the same processed data except for  features
+For this second model, we made use of the same processed data with following features:
 `TRB_per_game`, `AST_per_game`, `MP_per_game`, `3PA_per_game`, `2PA_per_game`, `FTA_per_game`, `WS`, `BPM`, `PER`, `VORP`, and `Age`
 
-Our second model Made use of Sklearn Polynomial Feature adder
+For this model, we also included `WS`, `BPM`, `PER` and `VORP`.
+
+Our second model was trained using polynomial regression and we made use of Sklearn's Polynomial Features.
 ```python
 from sklearn.preprocessing import PolynomialFeatures
 ```
-We needed to tune our degree parameter to be a correct fit for our model (choosing degree = 3)which was found using code below:
+To identify the best degree of polynomial for our features, we iterated over different degrees to tune our degree parameter to be a best fit for our model (where degree = 3 performed the best) which was found using code below:
 ```python
 degrees = [1,2,3,4]
 for degree in degrees:
@@ -172,7 +220,7 @@ for degree in degrees:
   print(f"Train MSE: {train_mse:.2f}")
   print(f"Test MSE: {test_mse:.2f}")
   ```
-Once our degree was found we simply created our model as such
+We then adjusted our model using the best degree that we had found as such:
 ```python 
 poly = PolynomialFeatures(degree=3)
 X_train_poly = poly.fit_transform(X_train)
@@ -218,70 +266,15 @@ print('Cross-Validation Scores:', -cv_scores)
 ```
 
 
-## Figures Code
-- figure 1
- ```python
- columns = ['PTS', 'G', 'MP', 'FG%', 'FGA', 'FT%', 'FTA','BPM','WS','VORP']
-
-# Create a PairGrid with 'PTS' as the y-axis for all other features
-g = sns.PairGrid(nbadf, y_vars=['PTS'], x_vars=columns[1:])  # Exclude 'PTS' from x_vars
-g.map(sns.scatterplot)  # Use scatter plots for visualization
-
-# Adjust layout and display
-g.fig.suptitle("Pairplot: PTS (y-axis) vs Other Features (x-axis)", y=1.02)
-plt.show()
-```
-
-- figure 2
-  
-```python
-corr = nbadf[['PTS', 'G', 'MP', 'FG%', 'FGA', 'FT%', 'FTA']].corr()
-sns.heatmap(corr, vmin=-1, vmax=1, center=0, annot=True, cmap= 'RdBu')
-```
 
 
-- correlation matrix (Model 1 features)
-```python
-# Calculate the correlation matrix
-corr = processed_nbadf[['PTS_per_game','TRB_per_game', 'AST_per_game', 'MP_per_game', '3PA_per_game', '2PA_per_game', 'FTA_per_game','WS','BPM', 'PER','VORP','OBPM','Age', 'FGA_per_game']].corr()
-# Set up the figure size
-plt.figure(figsize=(12, 8))  # Adjust the width (12) and height (8) as needed
 
-# Plot the heatmap
-sns.heatmap(corr, vmin=-1, vmax=1, center=0, annot=True, cmap='RdBu')
-plt.title("Correlation Heatmap", fontsize=16)
 
-# Show the plot
-plt.show()
-```
+
+
+
+
 # 3. Results
-
-## Data Exploration
-From looking at the first 20 values of our data, we see 
-early NBA didn't keep track of all stats like they do now. As such we needed to see how many null values we had
-![alt text](./Imgs/Data%20Explolration/Head.png)
-
-**Null Values**
-
-![alt text](./imgs/Data%20Explolration/NullValues.png)
-
-Which gives us an idea of what we need to work on, and how we will tackle the null values
-
-To get a basic relation of our target(`PPG`) and other features we did a simple plot against each other and found a couple of recognizable patterns(normal, linear)
-
-![alt text](./Imgs/Data%20Explolration/plot1.png)
-<div style="text-align: center;">
-<small><i>figure 1</i></small>
-</div>
-
-We also wanted a slight preview in the relationship as correlation between our features and our target variable
-<div style="text-align: center;">
-    <img src="./Imgs/Data%20Explolration/plot2.png" alt="plot2" style="width: 60%; height: auto;">
-</div>
-<div style="text-align: center;">
-<small><i>figure 2 (correlation heatmap)</i></small>
-</div>
-
 
 ## Data Preprocessing
 After all prepocessing was finished, our new dataframe ends up looking like: 
@@ -404,6 +397,16 @@ Definitively classifiable as Correct: Correct: 69.20%
 
 Allowable Correctness : 90.62%
 
+
+## Model 3
+
+
+
+
+
+
+
+
 # 4. Discussion
 
 ## Data Exploration
@@ -491,5 +494,5 @@ Allowable Correctness : 90.62%
 
 
 # 6. Statement of Collaborations
-
+Dionne Leow: Contributed to the data cleaning and visualization. Helped in model 3. Contributed to the final write up.
 Ryan Chon: In charge of the polynomial model, as well as write up and reasoning. Contributed to every section of final writeup
