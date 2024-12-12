@@ -721,7 +721,7 @@ print("Recall for each class:", rec)
 
 ![alt text](/Imgs/Model4/m4_1.png)
 <div style="text-align: center;">
-  <small><i>Figure 1.7: Results of Model 4 KerasClassifier</i></small>
+  <small><i>Figure 2.16: Results of Model 4 KerasClassifier</i></small>
 </div>
 
 Our model has generated a 10-class predictor with 71% accuracy. To Validate our model's performance, we performed K-fold cross validation to determine if our model's accuracy remained consistent.
@@ -753,7 +753,7 @@ print(f'Overall average accuracy: {average_accuracy:.4f}')
 
 ![alt text](/Imgs/Model4/m4_2.png)
 <div style="text-align: center;">
-  <small><i>Figure 1.8: Results of Model 4 10-fold CrossValidation</i></small>
+  <small><i>Figure 2.17: Results of Model 4 10-fold CrossValidation</i></small>
 </div>
 
 
@@ -926,10 +926,9 @@ In terms of where model 4 stands in our loss curves, our training predictions is
 
 - **Final Notes**:
   Based on each of our model's performance, our ANN model produced surprising results. Increasing our model's classification task from 4 bins to 10 slightly decreased our model's accuracy; however, 10 bins is a significant jump in classification, resulting in a stronger model altogether. Additionally, 2 tests were performed outside of this notebook to compare models 3 and 4.
-1. Model 3 run with 10 bins resulted in an accuracy of 40%
-2. Model 4 run with 4 bins resulted in an accuracy of 90%
-
-The results of these tests show that basic logistic regression from Model 3 is not enough to properly categorize large and complex data such as player stats.
+  1. Model 3 run with 10 bins resulted in an accuracy of 40%
+  2. Model 4 run with 4 bins resulted in an accuracy of 90%
+  The results of these tests show that basic logistic regression from Model 3 is not enough to properly categorize large and complex data such as player stats.
 
 
 
