@@ -927,8 +927,7 @@ In terms of where model 4 stands in our loss curves, our training predictions is
 - **Final Notes**:
   Based on each of our model's performance, our ANN model produced surprising results. Increasing our model's classification task from 4 bins to 10 slightly decreased our model's accuracy; however, 10 bins is a significant jump in classification, resulting in a stronger model altogether. Additionally, 2 tests were performed outside of this notebook to compare models 3 and 4.
   1. Model 3 run with 10 bins resulted in an accuracy of 40%
-  2. Model 4 run with 4 bins resulted in an accuracy of 90%
-  The results of these tests show that basic logistic regression from Model 3 is not enough to properly categorize large and complex data such as player stats.
+  2. Model 4 run with 4 bins resulted in an accuracy of 90%. The results of these tests show that basic logistic regression from Model 3 is not enough to properly categorize large and complex data such as player stats.
 
 
 
