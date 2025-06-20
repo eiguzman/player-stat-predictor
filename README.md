@@ -1,5 +1,8 @@
-# 1. Introduction
-## Predicting Points Per Game (PPG) Using NBA Performance Metrics
+# Predicting Points Per Game (PPG) Using NBA Performance Metrics
+
+*Originally a final assignment for CSE151A at the University of California, San Diego*
+
+## 1. Introduction
 
 Our project focuses on developing a supervised learning model designed to predict the **Points Per Game (PPG)** statistic in the NBA based on a range of other tracked performance metrics. By making use of a **polynomial regression model**, we analyzed the following features:
 
