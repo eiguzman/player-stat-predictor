@@ -1,10 +1,17 @@
+html {
+    font-family: 'Segoe UI', -apple-system;
+    scroll-behavior: smooth;
+    --color-accent-light: oklch(63% 0.16 145);
+    --color-accent-dark: oklch(43% 0.16 145);
+}
+
 body {
-    font: 100%/1.5 sans-serif, system-ui;
     display: flex;
     flex-flow: column;
-    max-width: 1200px;
-    min-height: 100vh;
-    margin: auto;
+    text-align: justify;
+    max-width: 1400px;
+    margin: 2em auto;
+    padding: 2em;
     background-color: rgb(10, 10, 10);
     color: white;
 }
@@ -34,18 +41,34 @@ header {
     }
 }
 
-path {
-  transition: 300ms;
-  cursor: pointer;
+a {
+  color: var(--color-accent-dark);
+}
+
+a:hover {
+  color: var(--color-accent-light);
 }
 
 section {
     float: right;
-    width: 900px;
+    width: 1100px;
+}
+
+.spacer{
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+}
+
+.figure{
+    display: grid;
+    text-align: center;
+    grid-template-rows: repeat(2, auto);
+    padding: 1em;
 }
 
 img{
     width: auto;
+    margin: auto;
 }
 
 code{
@@ -71,7 +94,57 @@ code{
 
 footer {
   display: grid;
-  grid-template-columns: .7fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr .5fr;
   width: 100%;
   position: static;
+}
+
+/* Windows 125% Stylesheet */
+@media print, screen and (max-width: 1900px) {
+  header,
+  footer{
+    font-size: 90%;
+  }
+  section{
+    width:1090px;
+  }
+}
+
+/* Windows 150% Stylesheet */
+@media print, screen and (max-width: 1280px) {
+  header,
+  footer{
+    font-size: 60%;
+  }
+  section{
+    font-size:90%;
+    width: 960px;
+  }
+  img{
+    width:80%;
+  }
+}
+
+/* iPhone Stylesheet */
+@media print, screen and (max-width: 440px) {
+  header{
+    font-size: 120%;
+    position:relative;
+  }
+  footer{
+    grid-template-columns: 1fr;
+    font-size: 100%;
+  }
+  section{
+    width:100%;
+    & ul{
+        text-align: left;
+    }
+  }
+  .spacer{
+    grid-template-columns: 1fr;
+  }
+  .edge{
+    font-size: 80%;
+  }
 }
