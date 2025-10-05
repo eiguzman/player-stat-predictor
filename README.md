@@ -530,14 +530,14 @@ The number of null values have become zero as desired as well:
 Check that our X train and X test are normalized and sizes are looking right:
 
 <div style="text-align: center;">
-    <img src="./Imgs/Model 1/XTrainScaled.png" alt="plot2" style="width: 100%; height: auto;">
+    <img src="./Imgs/Model1/XTrainScaled.png" alt="plot2" style="width: 100%; height: auto;">
 </div>
 <div style="text-align: center;">
 <small><i>Figure 2.3: XTrainScaled Table</i></small>
 </div>
 
 <div style="text-align: center;">
-    <img src="./Imgs/Model 1/XTestScaled.png" alt="plot2" style="width: 100%; height: auto;">
+    <img src="./Imgs/Model1/XTestScaled.png" alt="plot2" style="width: 100%; height: auto;">
 </div>
 <div style="text-align: center;">
 <small><i>Figure 2.4: XTestScaled Table</i></small>
@@ -546,7 +546,7 @@ Check that our X train and X test are normalized and sizes are looking right:
 
 We output the proportion of data points in our X_train and X_test below:
 <div style="text-align: center;">
-    <img src="./Imgs/Model 1/split.png" alt="plot2" style="width: 100%; height: auto;">
+    <img src="./Imgs/Model1/split.png" alt="plot2" style="width: 100%; height: auto;">
 </div>
 <div style="text-align: center;">
   <small><i>Figure 2.5: proportions of X_train and X_test respectively</i></small><br>
