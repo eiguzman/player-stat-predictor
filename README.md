@@ -23,7 +23,7 @@ Our project focuses on developing a supervised learning model designed to predic
 - Offensive Box Plus-Minus (OBPM)
 - Offensive Win Shares (OWS)
 
-The [dataset](path/to/your/dataset.csv) we used contained information collected from the 1950s on **24,000 NBA player seasons**, providing a good sample size to shape our model to.
+The [dataset](data/Seasons_Stats.csv) we used contained information collected from the 1950s on **24,000 NBA player seasons**, providing a good sample size to shape our model to.
 
 ## Key Insights
 This model aims to predict PPG by incorporating features that are less prone to early-season/bad shooting stretch variance which. It can account for temporary slumps (e.g., in shooting efficiency) and project a player's **overall scoring trajectory** for the season with greater stability.
@@ -53,7 +53,7 @@ Main data exploration tools used were from numPy and Pandas libraries.
 
 ## Data Exploration Results
 We first want to get a sense of how our dataset is like in terms of the values - the data type and number of null values. From looking at the first 20 values of our data, we see early NBA did not keep track of all statistics like they do now. As such we needed to consider how many null values we have in the dataset.
-![alt text](./Imgs/Data%20Explolration/Head.png)
+![alt text](./Imgs/Data_Explolration/Head.png)
 <div style="text-align: center;">
 <small><i>Figure 1.1: First 20 rows of the dataframe</i></small>
 </div>
@@ -63,7 +63,7 @@ We first want to get a sense of how our dataset is like in terms of the values -
 **Null Values**
 We count the number of null values for each attribute. This gives us an idea of what features are good to include into our model and how we should tackle the null values. We notice that `blanl` and `blank2` have the most missing values of greater than 20,000. There were also significant missing values in the Percentage of 3-Point Field Goal Percentage (`3P%`) of more than 9,000, followed by 3-Point Field Goals Attempted (`3PAr`), Games Started (`GS`), Team's Turnovers (`TOV`) and Usage Rate (`USG`) at about 5,000 data points each.
 
-<img src="./Imgs/Data%20Explolration/NullValues.png" alt="Null Values" width="150">
+<img src="./Imgs/Data_Explolration/NullValues.png" alt="Null Values" width="150">
 <div style="text-align: center;">
 <small><i>Figure 1.2: Top 28 Attributes with Null Values </i></small>
 </div>
@@ -84,7 +84,7 @@ plt.show()
 ```
  From the pairplot, we can see that Points (`PTS`) is generally normally distributed. We also observe a strong linear relationship between Points (`PTS`) and Field Goals Attempted (`FGA`), and Points (`PTS`) and Free Throws Attempted (`FTA`).
 
-![alt text](./Imgs/Data%20Explolration/plot1.png)
+![alt text](./Imgs/Data_Explolration/plot1.png)
 <div style="text-align: center;">
 <small><i>Figure 1.3: Pair plot of Features</i></small>
 </div>
@@ -110,7 +110,7 @@ plt.show()
 
  The strongest correlations were between: Field Goals Attempted (`FGA`) and Points (`PTS`) at 0.99, followed by Minutes Played (`MP`) and Points (`PTS`), and Minutes Played (`MP`) and Field Goals Attempted (`FGA`) at 0.93.
 <div style="text-align: center;">
-    <img src="./Imgs/Data%20Explolration/plot2.png" alt="plot2" style="width: 60%; height: auto;">
+    <img src="./Imgs/Data_Explolration/plot2.png" alt="plot2" style="width: 60%; height: auto;">
 </div>
 <div style="text-align: center;">
 <small><i>Figure 1.4: Correlation heatmap of dataset attributes</i></small>
@@ -120,7 +120,7 @@ plt.show()
 ## Preproccessing
 
 ### Steps Included:
-![Preproccessing](./Imgs/Processing%20Code.png)
+![Preproccessing](./Imgs/Processing_Code.png)
 <div style="text-align: center;">
 <small><i>Figure 1.5: Preprocessing Code</i></small>
 </div>
@@ -561,7 +561,7 @@ Testing MSE: 0.50
 ```
 
 To find out why MSE was so low we plotted this correlation matrix.
-![a](./Imgs/Model%201/Correlation.png)
+![a](./Imgs/Model1/Correlation.png)
 <div style="text-align: center;">
   <small><i>Figure 2.6: Correlation matrix of features</i></small>
 </div>
