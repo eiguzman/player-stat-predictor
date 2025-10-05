@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Player Stat Predictor</title>
+</head>
+<body>
+<h1 class="top">Predicting Points Per Game (PPG) Using NBA Performance Metrics</h1>
+<div class="wrapper">
+<header>
+    <h1><a href="{{ "/" | absolute_url }}">{{ site.title | default: site.github.repository_name }}</a></h1>
+    {% if site.logo %}
+    <img src="{{site.logo | relative_url}}" alt="Logo" />
+    {% endif %}
+    <p>{{ site.description | default: site.github.project_tagline }}</p>
+    <hr>
+    <nav class="toc">
+    <ul>
+        <h3><a href="#sect1">1. Introduction</a></h3>
+        <h3><a href="#sect2">2. Methods</a></h3>
+        <h3><a href="#sect3">3. Results</a></h3>
+        <h3><a href="#sect4">4. Discussion</a></h3>
+        <h3><a href="#sect5">5. Conclusion</a></h3>
+        <h5><a href="#top">Back to Top</a></h5>
+    </ul>
+    </nav>
+    <hr>
+</header>
+<section>
+<section class="sect1">
+<h2>1. Introduction</h2>
+<p>Our project focuses on developing a supervised learning model designed to 
+    predict the <b>Points Per Game (PPG)</b> statistic in the NBA based on a 
+    range of other tracked performance metrics. By making use of a 
+    <b>polynomial regression model</b>, we analyzed the following features:</p>
+<h4>Per-Game Stats:</h4>
+<ul>
+    <li>Total Rebounds (TRB)</li>
+    <li>Assists (AST)</li>
+    <li>Minutes Played (MP)</li>
+    <li>Field Goals Attempted (FGA)</li>
+    <li>Three-Point Attempts (3PA)</li>
+    <li>Two-Point Attempts (2PA)</li>
+    <li>Free Throws Attempted (FTA)</li>
+</ul>
+<h4>Advanced Metrics:</h4>
+<ul>
+    <li>Win Shares (WS)</li>
+    <li>Box Plus-Minus (BPM)</li>
+    <li>Player Efficiency Rating (PER)</li>
+    <li>Value Over Replacement Player (VORP)</li>
+    <li>Offensive Box Plus-Minus (OBPM)</li>
+    <li>Offensive Win Shares (OWS)</li>
+</ul>
+<p>The dataset we used contained information collected from the 1950s on 
+    <b>24,000 NBA player seasons</b>, providing a good sample size to shape our 
+    model to.</p>
+<h3>Key Insights</h3>
+<p>This model aims to predict PPG by incorporating features that are less prone 
+    to early-season/bad shooting stretch variance which. It can account for 
+    temporary slumps (e.g., in shooting efficiency) and project a player's 
+    <b>overall scoring trajectory</b> for the season with greater stability.</p>
+<h3>Real-World Applications</h3>
+<ul>
+    <li><b>Betting Predictions:</b> Accurate PPG forecasts can inform 
+        predictive models for betting markets, enhancing decision-making in 
+        wagering scenarios.</li>
+    <li><b>Performance Evaluation:</b> NBA analysts and teams could use this 
+        tool to estimate a player's potential for accolades like 
+        <b>Most Valuable Player (MVP)</b> considering the importance of scoring 
+        in such an award.</li>
+</ul>
+</section>
+<section class="sect2">
+<h2>2. Methods</h2>
+<h3>Data Exploration</h3>
+<p>Main data exploration tools used were from numPy and Pandas libraries.</p>
+<ul>
+    <li><b>Importing our data:</b> our data came in the form of a csv. We 
+        stored the file in our GitHub Repository and read it using: 
+        <pre>
+            <code>nbadf = pd.read_csv('CSE151AGroupProject/Seasons_Stats.csv')</code>
+        </pre></li>
+    <li><b>Understanding Our Data</b>
+        <ul>
+            <li><b>Getting a baseline:</b> we executed several lines of code in 
+                order to understand our data better
+                <ul>
+                    <li><b>Discovering features: </b>
+                        <code>nbadf.dtypes</code></li>
+                    <li><b>Looking into our Categorical Features: </b>
+                        <code>#for positions print(nbadf.Pos.unique())</code></li>
+                    <li><b>Accessing Distribution: </b>
+                        <code>nbadf.describe()</code></li>
+                    <li><b>Counting Mean: </b>
+                        <code>nbadf.isnull().sum()</code></li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+</ul>
+<h3>Data Exploration Results</h3>
+<p>We first want to get a sense of how our dataset is like in terms of the 
+    values - the data type and number of null values. From looking at the first 
+    20 values of our data, we see early NBA did not keep track of all 
+    statistics like they do now. As such we needed to consider how many null 
+    values we have in the dataset.</p>
+<img src="./Imgs/Data%20Explolration/Head.png" alt="Head of dataframe" style="max-width: 800px;">
+<br>
+<small><i>Figure 1.1: First 20 rows of the dataframe</i></small><br>
+<p><b>Null Values - </b>We count the number of null values for each attribute. 
+    This gives us an idea of what features are good to include into our model 
+    and how we should tackle the null values. We notice that <code>blanl</code> 
+    and <code>blank2</code> have the most missing values of greater than 
+    20,000. There were also significant missing values in the Percentage of 
+    3-Point Field Goal Percentage (<code>3P%</code>) of more than 9,000, 
+    followed by 3-Point Field Goals Attempted (<code>3PAr</code>), Games 
+    Started (<code>GS</code>), Team's Turnovers (<code>TOV</code>) and Usage 
+    Rate (<code>USG</code>) at about 5,000 data points each.</p>
+<img src="./Imgs/Data%20Explolration/NullValues.png" alt="Null Values" style="max-width: 150px;">
+<br>
+<small><i>Figure 1.2: Top 28 Attributes with Null Values </i></small><br>
+<p><b>Pair Plot - </b>To get a basic relation of our target (<code>PTS</code>) 
+    and other features we did a simple plot against each other and found a 
+    couple of recognizable patterns(normal, linear) using this code:</p>
+<pre class="python"><code>columns = ['PTS', 'G', 'MP', 'FG%', 'FGA', 
+    'FT%', 'FTA', 'BPM', 'WS', 'VORP']
+# Create a PairGrid with 'PTS' as the y-axis for all other features
+g = sns.PairGrid(
+    nbadf, 
+    y_vars=['PTS'], 
+    x_vars=columns[1:])  # Exclude 'PTS' from x_vars
+g.map(sns.scatterplot)  # Use scatter plots for visualization
+# Adjust layout and display
+g.fig.suptitle("Pairplot: PTS (y-axis) vs Other Features (x-axis)", y=1.02)
+plt.show()</code></pre>
+<p>From the pairplot, we can see that Points (<code>PTS</code>) is generally 
+    normally distributed. We also observe a strong linear relationship between 
+    Points (<code>PTS</code>) and Field Goals Attempted (<code>FGA</code>), and 
+    Points (<code>PTS</code>) and Free Throws Attempted (<code>FTA</code>).</p>
+<img src="./Imgs/Data%20Explolration/plot1.png" alt="Pair plot of Features" style="max-width: 1000px;">
+<br>
+<small><i>Figure 1.3: Pair plot of Features</i></small><br>
+<p><b>Correlation Heatmap - </b> We also wanted to identify the any correlation 
+    between our features and our target variable. We do so by using a 
+    Correlation heatmap to be able to look at the relationship at a glance:</p>
+<pre class="python"><code># Calculate the correlation matrix
+corr = processed_nbadf[['PTS_per_game', 'TRB_per_game', 'AST_per_game', 
+    'MP_per_game', '3PA_per_game', '2PA_per_game', 'FTA_per_game', 'WS', 'BPM', 
+    'PER','VORP','OBPM','Age', 'FGA_per_game']].corr()
+# Set up the figure size
+plt.figure(figsize=(12, 8))  # Adjust the width (12) and height (8) as needed
+# Plot the heatmap
+sns.heatmap(corr, vmin=-1, vmax=1, center=0, annot=True, cmap='RdBu')
+plt.title("Correlation Heatmap", fontsize=16)
+# Show the plot
+plt.show()</code></pre>
+<p>The strongest correlations were between: Field Goals Attempted 
+    (<code>FGA</code>) and Points (<code>PTS</code>) at 0.99, followed by 
+    Minutes Played (<code>MP</code>) and Points (<code>PTS</code>), and Minutes 
+    Played (<code>MP</code>) and Field Goals Attempted (<code>FGA</code>) at 
+    0.93.</p>
+<img src="./Imgs/Data%20Explolration/plot2.png" alt="plot2" style="max-width: 500px;">
+<br>
+<small><i>Figure 1.4: Correlation heatmap of dataset attributes</i></small><br>
+<h3>Preprocessing</h3>
+<h4>Steps Included:</h4>
+<img src="./Imgs/Processing%20Code.png" alt="Preprocessing Code" style="max-width: 800px;">
+<br>
+<small><i>Figure 1.5: Preprocessing Code</i></small><br>
+<ol>
+    <li><b>Removing Unwanted/Invalid Features:</b>
+        <ul>
+            <li>Removed features containing unusable data: 
+                <code>Unnamed: 0</code>, 
+                <code>blanl</code>, 
+                <code>blank2</code>.</li>
+            <li>Excluded features deemed unnecessary: 
+                <code>GS</code>, 
+                <code>Player</code>.</li>
+            <li>Dropped features that would not generalize well or were too 
+                constricting for predictions: 
+                <code>ORB</code>, 
+                <code>DRB</code>, 
+                <code>3P</code>, 
+                <code>2P</code>, and 
+                <code>FG</code>.</li>
+            <li>See corresponding code in <b>Lines 2-3</b>.</li>
+        </ul>
+    </li>
+    <li><b>Imputing Null Data:</b>
+        <ul>
+            <li>Imputed missing values for numerical columns by:
+                <ul>
+                    <li>Grouping by <code>Year</code> and filling with the mean 
+                        for years close to each other.</li>
+                    <li>Filling any remaining missing values using the global 
+                        average.</li>
+                </ul>
+            </li>
+            <li>Specifically computed and filled <code>MP_per_game</code> based 
+                on the ratio of average <code>MP</code> to <code>G</code>.</li>
+            <li>See corresponding code in <b>Lines 5-16 and Lines 
+                18-22</b>.</li>
+        </ul>
+    </li>
+    <li><b>Removing Remaining NaNs:</b>
+        <ul>
+            <li>Dropped rows containing any remaining null values after 
+                imputation.</li>
+            <li>See corresponding code in <b>Line 24</b>.</li>
+        </ul>
+    </li>
+    <li><b>One-Hot Encoding Categorical Data:</b>
+        <ul>
+            <li>Applied one-hot encoding to categorical features: 
+                <code>Tm</code> (Team) and <code>Pos</code> (Position).</li>
+            <li>See corresponding code in <b>Line 26</b>.</li>
+        </ul>
+    </li>
+    <li><b>Feature Engineering: Filtering Features to Per Game 
+        Statistics:</b>
+        <ul>
+            <li>combined 2 related features <code>ORB</code> and 
+                <code>DRB</code> into <code>TRB</code></li>
+            <li>Converted raw features like <code>PTS</code>, <code>TRB</code>, 
+                <code>AST</code>, etc., into per-game statistics by dividing by 
+                the number of games (<code>G</code>).</li>
+            <li>Removed the original columns after computing the per-game 
+                values.</li>
+            <li>See corresponding code in <b>Lines 28-36</b>.</li>
+        </ul>
+    </li>
+    <li><b>Splitting and Normalization:</b>
+        <ul>
+            <li>Splitting our data into training and testing section with 
+                sklearn <code>train_test_split</code> into a 80:20 ratio.</li>
+<pre class="python"><code>from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(
+    processed_nbadf[['Desired Features']], 
+    processed_nbadf.PTS_per_game, 
+    test_size=0.2, 
+    random_state=21)
+</code></pre>
+            <li>Normalization of our data through sklearn 
+                <code>MinMaxScaler</code></li>
+<pre class="python"><code>from sklearn.preprocessing import MinMaxScaler
+scaler = MinMaxScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+X_train = pd.DataFrame(X_train_scaled, 
+    columns=X_train.columns, index=X_train.index)
+X_test = pd.DataFrame(X_test_scaled, 
+    columns=X_test.columns, index=X_test.index)
+</code></pre>
+        </ul>
+    </li>
+</ol>
+<h3>Model 1</h3>
+<p>We started by implementing a simple <code>LinearRegression</code> from 
+    sklearn over the following: 
+    <code>TRB_per_game</code>, 
+    <code>AST_per_game</code>, 
+    <code>MP_per_game</code>, 
+    <code>3PA_per_game</code>, 
+    <code>2PA_per_game</code>, 
+    <code>FTA_per_game</code>, 
+    <code>Age</code>, and 
+    <code>OBPM</code>.</p>
+<pre class="python"><code>from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error</code></pre>
+<p>Creation of the model:</p>
+<pre class="python"><code>linearreg = LinearRegression()
+linearmodel = linearreg.fit(X_train, y_train)</code></pre>
+<p>Testing MSE for our model:</p>
+<pre class="python"><code>yhat_test = linearreg.predict(X_test)
+yhat_train = linearreg.predict(X_train)
+testMSE = mean_squared_error(y_test, yhat_test)
+trainMSe = mean_squared_error(y_train, yhat_train)</code></pre>
+<p>Our model was created and fit to our train data and subsequently tested on 
+    our test data.</p>
+<h3>Model 2</h3>
+<p>For this second model, we made use of the same processed data with following 
+    features: 
+    <code>TRB_per_game</code>, 
+    <code>AST_per_game</code>, 
+    <code>MP_per_game</code>, 
+    <code>3PA_per_game</code>, 
+    <code>2PA_per_game</code>, 
+    <code>FTA_per_game</code>, 
+    <code>WS</code>, 
+    <code>BPM</code>, 
+    <code>PER</code>, 
+    <code>VORP</code>, and 
+    <code>Age</code></p>
+<p>For this model, we also included <code>WS</code>, <code>BPM</code>, 
+    <code>PER</code> and <code>VORP</code>.</p>
+<p>Our second model was trained using polynomial regression and we made use of 
+    sklearn's <code>PolynomialFeatures</code>.</p>
+<pre class="python"><code>from sklearn.preprocessing import PolynomialFeatures</code></pre>
+<p>To identify the best degree of polynomial for our features, we iterated over 
+    different degrees to tune our degree parameter to be a best fit for our 
+    model (where degree = 3 performed the best) which was found using code 
+    below:</p>
+<pre class="python"><code>degrees = [1,2,3,4]
+for degree in degrees:
+  initialDegree = degree
+  poly = PolynomialFeatures(degree=initialDegree)
+  X_train_poly = poly.fit_transform(X_train)
+  X_test_poly = poly.transform(X_test)
+  model2 = LinearRegression()
+  model2.fit(X_train_poly, y_train)
+  y_train_pred = model2.predict(X_train_poly)
+  y_test_pred = model2.predict(X_test_poly)
+  train_mse = mean_squared_error(y_train, y_train_pred)
+  test_mse = mean_squared_error(y_test, y_test_pred)
+  train_mse_list.append(train_mse)
+  test_mse_list.append(test_mse)
+  print(f"Polynomial Regression (Degree={initialDegree})")
+  print(f"Train MSE: {train_mse:.2f}")
+  print(f"Test MSE: {test_mse:.2f}")</code></pre>
+<p>We then adjusted our model using the best degree that we had found as 
+    such:</p>
+<pre class="python"><code>poly = PolynomialFeatures(degree=3)
+X_train_poly = poly.fit_transform(X_train)
+X_test_poly = poly.transform(X_test)
+model2 = LinearRegression()
+model2.fit(X_train_poly, y_train)
+y_test_pred = model2.predict(X_test_poly)</code></pre>
+<p>To see the accuracy of our models predictions we compared <code>ŷ</code> to 
+    <code>y</code> (<code>ppg</code>) to score differential between prediction 
+    and reality</p>
+<pre class="python"><code>newY = y_test - y_test_pred
+# Define thresholds
+thresholds = [0.5, 1, 2.5, 5]
+# Calculate residuals
+newY = y_test - y_test_pred
+# Calculate FNFP (total values not within ±0.5)
+correct = len(newY[abs(newY) < 0.5])
+FNFP = len(y_test) - correct
+# Count how many FNFP are within each threshold range
+fnfp_within_ranges = [
+    len(newY[(abs(newY) > thresholds[i]) & (abs(newY) <= thresholds[i + 1])])
+    for i in range(len(thresholds) - 1)
+]
+# Print results
+print(f"Correct Values: {correct}")
+print(f"FNFP Values: {FNFP}")
+for i in range(len(thresholds) - 1):
+    print(f"FNFP between {thresholds[i]} and {thresholds[i+1]}: {fnfp_within_ranges[i]}")</code></pre>
+<p>To do more analysis on whether our model was overfitting/underfitting used 
+    sklearn Cross validation score</p>
+<pre class="python"><code>from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import KFold
+kf = KFold(n_splits=10, shuffle=True)
+cv_scores = cross_val_score(
+    model2, 
+    X_train_poly, 
+    y_train, cv=kf, 
+    scoring='neg_mean_squared_error')
+print('Cross-Validation Scores:', -cv_scores)</code></pre>
+<h3>Model 3</h3>
+<p>In our third model, we decided to group the <code>PPG</code> into 4 
+    different categories and use the bins as our output.</p>
+<img src="/Imgs/Model3/bins.png" alt="Bins" style="max-width: 300px;">
+<br>
+<small><i>Figure 1.6: Table showing the different bins</i></small><br>
+<p>We create a new column in the dataframe with the following code:</p>
+<pre class="python"><code>bins = {
+    "Low": desc["PTS_per_game"]["25%"], 
+    "Medium": desc["PTS_per_game"]["50%"],
+    "High": desc["PTS_per_game"]["75%"]}
+print(bins)
+nbadf_2 = processed_nbadf.copy()
+#Convert keys into numeric vals, Very High = 3
+def PPG_binner(value):
+    if value &lt; bins['Low']:
+        return 0
+    elif value &lt; bins['Medium']:
+        return 1
+    elif value &lt; bins['High']:
+        return 2
+    else:
+        return 3
+#Apply the function to PTS_per_game
+nbadf_2['PPG_Bins'] = nbadf_2['PTS_per_game'].apply(PPG_binner)
+nbadf_2 = nbadf_2.drop("PTS_per_game", axis=1)</code></pre>
+<p>We will then perform PCA using the same features as our previous model.</p>
+<pre class="python"><code>from sklearn.decomposition import PCA
+pca = PCA()
+pca.fit(X_train)
+# Scree plot
+plt.figure(figsize=(10, 6))
+plt.plot(range(1, len(ev) + 1), ev, marker='o', linestyle='--')
+plt.title('Scree Plot')
+plt.xlabel('n_components')
+plt.ylabel('Explained Variance Ratio')
+plt.xticks(np.arange(1, len(ev) + 1, 1))
+plt.grid()
+plt.show()</code></pre>
+<p>We also plot the Cumulative Explained Variance to be able to identify the 
+    best number of components and the variance explained.</p>
+<pre class="python"><code>cumulative_variance = np.cumsum(ev)
+plt.figure(figsize=(10, 6))
+plt.plot(range(1, len(cumulative_variance) + 1), cumulative_variance, 
+marker='o', linestyle='--')
+plt.title('Cumulative Explained Variance Plot')
+plt.xlabel('n_components')
+plt.ylabel('Cumulative Explained Variance')
+plt.xticks(np.arange(1, len(cumulative_variance) + 1, 1))
+plt.grid()
+plt.axhline(y=0.90, color='r', linestyle='--')  # threshold at 90%
+plt.show()</code></pre>
+<p>From our PCA and Cumulative Explained Variance plot, we will identify the 
+    best number of components to use (in this case would be 3).</p>
+<p>Firstly we will create a PCA with 3 components and identify the feature with 
+    the highest positive weight.</p>
+<pre class="python"><code>pca = PCA(n_components= 3)
+pca_df = pd.DataFrame(pca.fit_transform(X_train))
+pca_df['Labels'] = nbadf_2.PPG_Bins
+plt.figure()
+plt.scatter(pca_df[0], pca_df[1],
+            c=pca_df['Labels'],
+            alpha=0.6)
+plt.title('PCA Clusters')
+plt.xlabel('PCA1')
+plt.ylabel('PCA2')
+plt.colorbar(label='Cluster Label')
+plt.grid()
+plt.show()
+feature = 0
+hi_feat = -1
+hi_weight = -1
+for i in pca.components_[0]:
+    if i &gt; hi_weight and i &gt; 0:
+        hi_feat = feature
+        hi_weight = i
+    feature += 1
+print('Feature with the highest positive weight:')
+print(hi_feat, hi_weight)</code></pre>
+<p>We will use SVD to transform our features and will fit a logistical 
+    regression for this model.</p>
+<pre class="python"><code>from sklearn.decomposition import TruncatedSVD
+svd = TruncatedSVD(n_components=3, n_iter=1000, random_state=76)
+svd.fit(X_train)
+sv = svd.singular_values_
+right_matrix = pd.DataFrame(svd.components_)
+right_matrix.shape # lets check the shape
+left_matrix = pd.DataFrame(svd.fit_transform(X_train))/ sv
+left_matrix.shape</code></pre>
+<pre class="python"><code>from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import classification_report, accuracy_score
+# Step 1: Transform both training and testing data using SVD
+X_train_svd = pd.DataFrame(svd.transform(X_train), index=X_train.index)
+X_test_svd = pd.DataFrame(svd.transform(X_test), index=X_test.index)
+# Step 2: Fit a classifier on the transformed training data
+classifier = LogisticRegression()
+classifier.fit(X_train_svd, y_train)
+# Step 3: Predict on the transformed test data
+y_pred = classifier.predict(X_test_svd)
+# Evaluate the model
+print("Accuracy:", accuracy_score(y_test, y_pred))
+print("\nClassification Report:\n", classification_report(y_test, y_pred))
+y_pred2 = classifier.predict(X_train_svd)
+print("Accuracy:", accuracy_score(y_train, y_pred2))
+print("\nClassification Report:\n", classification_report(y_train, y_pred2))</code></pre>
+<h3>Model 4</h3>
+<p>For our final model, an artificial neural network will be used to classify 
+    <code>PPG_bins</code> based on our previous per_game variables. We will run 
+    our models to predict <code>10 bins</code>, binned by the dataset's 
+    deciles. This change better reflects our model's classification strength as 
+    well as the transition from regression to classification, as the bins and 
+    our predictions are closer in resemblance to our regression model.</p>
+<p>Similar to model 3, we create a new column with our 10 classes:</p>
+<pre class="python"><code>quants = processed_nbadf["PTS_per_game"].quantile(
+    q= [.1,.2,.3,.4,.5,.6,.7,.8,.9,1])
+bins = {x:quants[x] for x in quants.keys()}
+nbadf_3 = processed_nbadf.copy()
+def PPG_binner(value):
+    count = 0
+    key = 0.1
+    while count &lt; 9:
+        if value &lt; bins[key]:
+            return count
+        count += 1
+        key += 0.1
+        key = np.round(key, 2)
+    return count
+#Apply the function to PTS_per_game
+nbadf_3['PPG_Bins'] = nbadf_3['PTS_per_game'].apply(PPG_binner)
+nbadf_3 = nbadf_3.drop("PTS_per_game", axis=1)</code></pre>
+<p>Then the data is split into training and test sets, both of which are 
+    normalized individually:</p>
+<pre class="python"><code>#Split the training and test data, then normalize
+X_train, X_test, y_train, y_test = train_test_split(
+    nbadf_3.iloc[:, -7:-1], 
+    nbadf_3.PPG_Bins, 
+    test_size=0.2, 
+    random_state=21)
+scaler = MinMaxScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+X_train = pd.DataFrame(
+    X_train_scaled, 
+    columns=X_train.columns, 
+    index=X_train.index)
+X_test = pd.DataFrame(
+    X_test_scaled, 
+    columns=X_test.columns, 
+    index=X_test.index)</code></pre>
+<p>Since our model uses 7 features to predict one of 10 classes, Our ANN will 
+    start with an input layer of size 7. Then, three hidden layers are added as 
+    follows:</p>
+<ul>
+    <li>Layer 1: 64 nodes using <code>relu</code> activation.</li>
+    <li>Layer 2: 32 nodes using <code>relu</code> activation.</li>
+    <li>Layer 3: 12 nodes using <code>relu</code> activation.</li>
+</ul>
+<p>Hyperparameter tuning was performed outside of this notebook. 
+    <code>relu</code> activation was chosen as our feature variables are 
+    quantitative continuous. Our final output layer contains 10 nodes in 
+    accordance to our 10 categories, using <code>softmax</code> activation. 
+    Softmax is the preferred activation for multi-class classification.</p>
+<p>Our learning rate was also fine-tuned outside of this notebook. Using Adam 
+    and a learning rate of 0.001, our model's loss was minimized using 
+    <code>sparse_categorical_crossentropy</code>, as our <code>y</code> values 
+    were numeric. Our model was evaluated using accuracy.</p>
+<pre class="python"><code>X = nbadf_3.iloc[:, -7:-1]
+def mdl():
+    model = Sequential([
+        Input(shape=(X.shape[1],)),
+        Dense(64, activation= 'relu'),
+        Dense(32, activation= 'relu'),
+        Dense(12, activation= 'relu'),
+        Dropout(0.5),
+        Dense(10, activation= 'softmax')])
+    adam = Adam(learning_rate=0.001)
+    model.compile(
+        optimizer= adam, 
+        loss= 'sparse_categorical_crossentropy', 
+        metrics= ['accuracy'])
+    return model
+def ravel(cm):
+    num_classes = cm.shape[0]
+    tp = np.zeros(num_classes)
+    fp = np.zeros(num_classes)
+    fn = np.zeros(num_classes)
+    tn = np.zeros(num_classes)
+    total_instances = np.sum(cm)
+    for i in range(num_classes):
+        tp[i] = cm[i, i]
+        fp[i] = np.sum(cm[:, i]) - tp[i]
+        fn[i] = np.sum(cm[i, :]) - tp[i]
+        tn[i] = total_instances - (tp[i] + fp[i] + fn[i])   
+    return tp, fp, tn, fn
+estimator = KerasClassifier(
+    model= mdl, 
+    epochs= 100, 
+    batch_size= 1000, 
+    verbose= 0)
+estimator.fit(X_train, y_train)
+y_pred = estimator.predict(X_test)</code></pre>
+</section>
+<section class="sect3">
+<h2>3. Results</h2>
+<h3>Data Preprocessing</h3>
+<p>After all preprocessing was finished, our new dataframe ends up looking 
+    like:</p>
+<img src="./Imgs/DataPrep/DF.png" alt="Processed dataframe" style="max-width: 1000px;">
+<br>
+<small><i>Figure 2.1: Processed dataframe</i></small><br>
+<p>The number of null values have become zero as desired as well:</p>
+<img src="./Imgs/DataPrep/Null.png" alt="Null Values" style="max-width: 150px;">
+<br>
+<small><i>Figure 2.2: Number of null values for each feature</i></small><br>
+<p>Check that our X train and X test are normalized and sizes are looking 
+    right:</p>
+<img src="./Imgs/Model 1/XTrainScaled.png" alt="XTrainScaled Table" style="max-width: 1000px;">
+<br>
+<small><i>Figure 2.3: XTrainScaled Table</i></small><br>
+<img src="./Imgs/Model 1/XTestScaled.png" alt="XTestScaled Table" style="max-width: 1000px;">
+<br>
+<small><i>Figure 2.4: XTestScaled Table</i></small><br>
+<p>We output the proportion of data points in our X_train and X_test below:</p>
+<img src="./Imgs/Model 1/split.png" alt="Proportion of X_train and X_test" style="max-width: 200px;">
+<br>
+<small><i>Figure 2.5: proportions of X_train and X_test respectively</i></small><br><br>
+<h3>Model 1</h3>
+<p><b>Running Model 1</b>: </p>
+<p>Our first output for our Linear regression model outputted as:</p>
+<pre class="python"><code>Training MSE: 0.52
+Testing MSE: 0.50</code></pre>
+<p>To find out why MSE was so low we plotted this correlation matrix.</p>
+<img src="./Imgs/Model%201/Correlation.png" alt="Correlation matrix" style="max-width: 600px;">
+<br>
+<small><i>Figure 2.6: Correlation matrix of features</i></small><br>
+<p>Running Linear model without <code>FGA</code> results in:</p>
+<pre class="python"><code>Training MSE for no FGA: 1.65
+Testing MSE for no FGA: 1.59</code></pre> 
+<p>We then check for overfitting using Kfold Cross validation for the first run 
+    of model, with the following results:</p>
+<pre class="python"><code>Cross-Validation Scores: [0.46139252 0.48908755 0.5362284  0.48781997 0.54074659 0.49958713 0.50085788 0.52959658 0.53930553 0.60954084]</code></pre>
+<h3>Model 2</h3>
+<p>After implementation of our second model we printed out the MSE between the 
+    training and testing as well as their differences against degree </p>
+<pre class="python"><code>Polynomial Regression (Degree=1)
+Train MSE: 1.65
+Test MSE: 1.59
+Polynomial Regression (Degree=2)
+Train MSE: 0.54
+Test MSE: 0.57
+Polynomial Regression (Degree=3)
+Train MSE: 0.34
+Test MSE: 0.44
+Polynomial Regression (Degree=4)
+Train MSE: 0.21
+Test MSE: 88.83</code></pre>
+<p>We observe that the elbow of the fitting graph lies when the polynomial 
+    degree is 3.</p>
+<img src="./Imgs/Model2/FittingGraph.png" alt="Fitting Graph all 4 degrees" style="max-width: 500px;">
+<br>
+<small><i>Figure 2.7: Fitting Graph all 4 degrees</i></small><br>
+<img src="./Imgs/Model2/FittingGraph2.png" alt="Fitting Graph 3 degrees" style="max-width: 500px;">
+<br>
+<small><i>Figure 2.8: Fitting Graph 3 degrees</i></small><br>
+<p>Checking for overfitting based on KFold Cross Validation we got: </p>
+<pre class="python"><code>Cross-Validation Scores (MSE): [ 0.43217879  0.46648901  0.43258806  0.57135784  0.39732678  0.51268138 0.67144083 14.51494587  0.82262654  0.52637149]</code></pre>
+<h4>Checking Accuracy</h4>
+<p>By checking the point differential we concluded our model was able to 
+    predict the following metrics:</p>
+<pre class="python"><code>Accuracy = 0.69198
+Correct Values: 3408
+FNFP Values: 1517
+FNFP between 0.5 and 1: 1055
+FNFP between 1 and 2.5: 432
+FNFP between 2.5 and 5: 25
+FNFP between 5 and 10: 5</code></pre>
+<p>Considering the range of points typically is between 6 to 27, 
+we classified as followed:</p>
+<ul>
+    <li>Between .5 and 1: marginally small/ignorable</li>
+    <li>Between 1 and 2.5 as :meaningful error</li>
+    <li>Anything > 2.5 as critical</li>
+</ul>
+<p>Definitively classifiable as Correct: <code>Correct: 69.20%</code></p>
+<p>Allowable Correctness : <code>90.62%</code></p>
+<h3>Model 3</h3>
+<p>We plot the following scree plot and cumulative explained variance plot to 
+    identify the number of components to retain in our model.</p>
+<img src="/Imgs/Model3/screeplot.png" alt="Screeplot generated from PCA" style="max-width: 500px;">
+<br>
+<small><i>Figure 2.9: Screeplot generated from PCA</i></small><br>
+<img src="/Imgs/Model3/CumulativeExplainedVariancePlot.png" alt="Cumulative Explained Variance" style="max-width: 500px;">
+<br>
+<small><i>Figure 2.10: Plot of Cumulative Explained Variance</i></small><br>
+<p>From the above plots, we identified n_components=3 to be the best number of 
+    components as the curve starts to flatten out beyond that point.</p>
+<p>We plotted a PCA cluster plot to be able to identify the clustering.</p>
+<img src="/Imgs/Model3/PCAclusters.png" alt="Plot of PCA clusters" style="max-width: 500px;">
+<br>
+<small><i>Figure 2.11: Plot of PCA clusters</i></small><br>
+<p>We also used SVD to fit the 3 components. This is the visualization of our 
+    SVD in the form of a pairplot, showing each of the 3 components of the left 
+    and right matrices that we have created.</p>
+<img src="/Imgs/Model3/LeftMatPairplot.png" alt="Pairplot of left matrix" style="max-width: 500px;">
+<br>
+<small><i>Figure 2.12: Pairplot of left matrix</i></small><br>
+<img src="/Imgs/Model3/RightMatPairplot.png" alt="Pairplot of right matrix" style="max-width: 500px;">
+<br>
+<small><i>Figure 2.13: Pairplot of right matrix</i></small><br>
+<p>We implemented a logistic regression for our third model using the 
+    transformed SVD as inputs.</p> 
+<p>These are the output when we ran our train and test values:</p>
+<img src="/Imgs/Model3/logTrain.png" alt="Accuracy and Classification Report for Train" style="max-width: 500px;">
+<br>
+<small><i>Figure 2.14: Accuracy and Classification Report for Train</i></small><br>
+<img src="/Imgs/Model3/logTest.png" alt="Accuracy and Classification Report for Test" style="max-width: 500px;">
+<br>
+<small><i>Figure 2.15: Accuracy and Classification Report for Test</i></small><br>
+<h3>Model 4</h3>
+<p>To analyze our models performance, a confusion matrix is used as well as the 
+    model's accuracy. To properly understand the results, the MSE, precision, 
+    recall, and the raveled confusion matrix are printed for further 
+    details:</p>
+<pre class="python"><code>cm = confusion_matrix(y_test, y_pred)
+acc = accuracy_score(y_test, y_pred)
+mse = mean_squared_error(y_test, y_pred)
+prec = precision_score(y_test, y_pred, average= None, zero_division= 0)
+rec = recall_score(y_test, y_pred, average= None)
+tp, fp, tn, fn = ravel(cm)
+# Print the results
+print("Confusion Matrix:\n", cm)
+print("Accuracy:", acc)
+print("Mean Squared Error:", mse)
+print("True Positives: ", tp)
+print("False Positives: ", fp)
+print("True Negatives: ", tn)
+print("False Negatives: ", fn)
+print("Precision for each class:", prec)
+print("Recall for each class:", rec)</code></pre>
+<img src="/Imgs/Model4/m4_1.png" alt="Results of Model 4 KerasClassifier" style="max-width: 600px;">
+<br>
+<small><i>Figure 2.16: Results of Model 4 KerasClassifier</i></small><br>
+<p>Our model has generated a 10-class predictor with 71% accuracy. To Validate 
+    our model's performance, we performed K-fold cross validation to determine 
+    if our model's accuracy remained consistent.</p>
+<pre class="python"><code>cv = RepeatedKFold(n_splits= 10, n_repeats= 1)
+acc_scores = []
+# Perform cross-validation
+for t_idx, v_idx in cv.split(X_train):
+    X_train_cv, X_valid = X_train.iloc[t_idx], X_train.iloc[v_idx]
+    y_train_cv, y_valid = y_train.iloc[t_idx], y_train.iloc[v_idx]
+    
+    estimator = KerasClassifier(model= mdl, 
+                                epochs= 100, 
+                                batch_size= 1000, 
+                                verbose= 0)
+    estimator.fit(X_train_cv, y_train_cv)
+    y_pred = estimator.predict(X_valid)
+    acc = accuracy_score(y_valid, y_pred)
+    acc_scores.append(acc)
+    print(f'Fold accuracy: {acc:.4f}')
+# Calculate and print overall average accuracy
+average_accuracy = np.mean(acc_scores)
+print(f'Overall average accuracy: {average_accuracy:.4f}')
+</code></pre>
+<img src="/Imgs/Model4/m4_2.png" alt="Results of Model 4 10-fold CrossValidation" style="max-width: 300px;">
+<br>
+<small><i>Figure 2.17: Results of Model 4 10-fold CrossValidation</i></small><br>
+</section>
+<section class="sect4">
+<h2>4. Discussion</h2>
+<h3>Data Exploration</h3>
+<h4>Important Observations</h4>
+<ul>
+    <li>The 67 seasons missing for <code>Year</code>, <code>Player</code>,... 
+        etc. we reasoned to be droppable because they make up such a small 
+        percentage of the population.</li>
+    <li>Early on, (1st Milestone) we recognized that older data had to be 
+        imputed because certain stats were just not tracked.</li>
+    <li>After plotting and seeing figure1, the vaguely linear relationships 
+        seen made us want to go with linear regression as our first model to 
+        test the grounds.</li>
+    <li>Analysis of model 3 shows that among the 5 main positions (Shooting 
+        Guard, Center, Point Guard, Small Forward, Power Forward), The 
+        distribution of <code>PPG_Bins</code> remained fairly balanced. Each 
+        position had players scoring on the lower quartiles and high quartiles, 
+        resulting in a PCA graph that did not properly separate players into 
+        clusters.</li>
+</ul>
+<h3>Data Preprocessing</h3>
+<h4>Rationale Behind Each Step</h4>
+<h4>Feature Removal</h4>
+<ul>
+    <li><code>Unnamed: 0</code>, <code>blanl</code>, <code>blank2</code>: These 
+        columns were entirely null and provided no useful information, so they 
+        were removed to clean the dataset.</li>
+    <li><code>GS</code>, <code>Player</code>: 
+        <ul>
+            <li><code>Player</code>: We determined that the player's name would 
+                not serve as a reliable predictor for statistical performance, 
+                and one-hot encoding it would explode our dimension size.</li>
+            <li><code>GS</code>: This feature was redundant as it correlated 
+                closely with <code>MP</code> (minutes played). Starters who 
+                start games generally accumulate higher minutes, making 
+                <code>GS</code> unnecessary.</li>
+        </ul>
+    </li>
+    <li><code>ORB</code>, <code>DRB</code>: removed because together they make 
+        up <code>TRB</code></li>
+    <li><code>3P</code>, <code>2P</code>, and <code>FG</code>: These features 
+        were removed as they are direct contributors to the target variables 
+        (e.g., Points Per Game). Including them would risk introducing bias and 
+        redundancy in the model.</li>
+</ul>
+<h4>Handling Missing Data</h4>
+<ul>
+    <li><b>Grouped Imputation by Year:</b> Missing values were 
+        imputed by grouping data based on the year to account for changes in 
+        statistical trends across different eras of basketball. This approach 
+        helped maintain the integrity of historical differences in player 
+        performances.
+        <br><b>Challenge Noted:</b> Most missing data were clustered 
+        in earlier years, which may have introduced bias due to the lack of 
+        diverse data representation in those eras.</li>
+    <li><b>Global Average for <code>MPG</code>:</b>
+        <ul>
+            <li>The global average was used to impute missing values for 
+                <code>MPG</code> (Minutes Per Game). Unlike other per-game 
+                statistics, <code>MPG</code> had a significantly higher 
+                proportion of missing values. Filling these gaps using 
+                year-specific averages resulted in impossible values (e.g., 
+                minutes exceeding a game's total duration). Hence, the global 
+                average was deemed more reliable for consistency.</li>
+        </ul>
+    </li>
+    <li><b>Ensure excluding NaN:</b> This step was done to make sure 
+        we aren't getting any null values in our data, and we determined the 
+        loss of observations is negligible compared to the size of our 
+        dataset.</li>
+</ul>
+<h3>Model 1</h3>
+<h4>Results and Configuration of Model</h4>
+<ul>
+    <li><b>Initial Results:</b> Our initial model yielded 
+        surprisingly low Mean Squared Error (MSE) values: 
+        <pre class="python"><code>Training MSE: 0.52
+Testing MSE: 0.50</code></pre>
+    </li>
+    <li><b>Cross-Validation Stability:</b> The consistent 
+        Cross-Validation scores from the result section further confirmed that 
+        our model was not overfitting.</li>
+    <li><b>Observation on Feature Correlations:</b> After examining 
+        the feature correlation matrix, we identified a strong correlation 
+        between <code>PPG</code> (Points Per Game) and <code>FGA</code> (Field 
+        Goal Attempts). Furthermore, the coefficients indicated that 
+        <code>FGA</code> was dominating the model, overshadowing other 
+        features. Since <code>FGA</code> is a combination of <code>3PA</code> 
+        (3-Point Attempts) and <code>2PA</code> (2-Point Attempts), we decided 
+        to exclude <code>FGA</code>.</li>
+    <li><b>Updated Model Performance:</b> After removing 
+        <code>FGA</code> from the model, the MSE values increased significantly: 
+        <pre class="python"><code>Training MSE (No FGA): 1.65
+Testing MSE (No FGA): 1.59</code></pre>
+        This increase in error for both the training and testing datasets 
+        indicates that the initial model was likely overfitting, heavily 
+        relying on <code>FGA</code> to minimize error without generalizing well.</li>
+    <li><b>Final Thoughts on FGA Exclusion:</b> Removing 
+        <code>FGA</code> helped reduce overfitting and allowed other features 
+        in the model to play a more balanced role. While the overall MSE 
+        increased, the model is now less reliant on a single dominating 
+        feature.</li>
+</ul>
+<h3>Model 2</h3>
+<ul>
+    <li><b>Initial Thoughts:</b> Based on our findings from Model 1, 
+        we decided to exclude <code>FGA_per_game</code> from this model due to 
+        its dominating influence in the previous results.</li>
+    <li><b>Initial Hyperparameter Tuning:</b> To find the optimal 
+        balance between complexity and error minimization, we tuned the degree 
+        of the polynomial terms. We identified that a polynomial of degree 3 
+        provided the best performance for our dataset.
+        <ul>
+            <li>Degrees 1 and 2: Training and testing errors were too close, 
+                indicating underfitting.</li>
+            <li>Degree 3: This degree achieved the right mix of complexity and 
+                accuracy, minimizing errors while maintaining 
+                generalizability.</li>
+        </ul>
+    </li>
+    <li><b>Model Performance on the Fitting Graph:</b> The model 
+        passed the "eye test" when evaluating the MSE against polynomial 
+        degrees (complexity). Using K-fold cross-validation, we observed that 
+        while the MSE stayed below 1 for most iterations, one iteration 
+        experienced a significant error spike (MSE = 14), indicating our model 
+        is overfitting.</li>
+    <li><b>Calculating Correctness:</b> Although this is a regression 
+        problem, we evaluated the model's performance by classifying 
+        predictions into "correct" or "incorrect."
+        <ul>
+            <li>A difference of <code>0 to 0.5 PPG</code> (points per game) for 
+                a season is considered negligible. Using this criterion, the 
+                model achieved an accuracy of <code>69.20%</code> for 
+                definitive correctness.</li>
+            <li>Extending this range to <code>0 to 1 PPG</code> due to the 
+                naturally high variance in PPG scores, the model's correctness 
+                increases to <code>90.62%</code>, which is considered 
+                excellent.</li>
+            <li>However, the spike observed during K-fold cross-validation 
+                suggests that this accuracy may degrade on specific, small 
+                subsets of NBA seasons, where the model struggles to 
+                generalize.</li>
+        </ul>
+    </li>
+    <li><b>Final Notes:</b> The results of Model 2 demonstrate 
+        significant improvement in generalization compared to Model 1. While 
+        the high correctness scores are promising, further refinement is 
+        necessary to address the overfitting observed in certain 
+        cross-validation subsets.</li>
+</ul>
+<h3>Model 3</h3>
+<ul>
+    <li><b>Initial Thoughts:</b> We feel that separating 
+        <code>PPG</code> into bins could yield better performance in our model 
+        in terms of accuracy, since the classification task simplifies the 
+        prediction process to determine the correct range (bin) rather than the 
+        exact numerical score. The bins are also a good indicator of how well a 
+        player is performing relative to their peers and provide a more 
+        interpretable output for assessing performance tiers.</li>
+    <li><b>Initial Hyperparameter Tuning:</b> For this model, we 
+        tested dimensionality reduction techniques like PCA (Principal 
+        Component Analysis) and SVD (Singular Value Decomposition) to reduce 
+        the number of features while retaining the variance or meaningful 
+        components. We experimented with the following parameters:
+        <ul>
+            <li><b>PCA</b>: Tuned the number of principal components 
+                (n_components) between 1 and 4 to find an optimal balance 
+                between model simplicity and information retention.</li>
+            <li><b>SVD</b>: Tested truncation levels to determine the 
+                number of singular vectors to retain. Optimal values were found 
+                when keeping 90% of the cumulative explained variance.</li>
+            <li><b>Logistic Regression</b>: Explored variations in 
+                the regularization parameter (C) and penalty terms (l1 and l2) 
+                to prevent overfitting while maximizing predictive 
+                accuracy.</li>
+        </ul>
+    </li>
+    <li><b>Model Performance:</b> After applying SVD, we plotted the 
+        training and validation accuracies across the logistic regression 
+        model's epochs. The fitting graph indicated that dimensionality 
+        reduction significantly stabilized the learning curve, reducing 
+        overfitting compared to the baseline logistic regression model. 
+        Training accuracy hovered around 92%, while validation accuracy reached 
+        88%, showing a small generalization gap. The model performed well 
+        across most bins, though performance slightly decreased in 
+        underrepresented bins.</li>
+    <li><b>Calculating Correctness:</b> The performance of the model 
+        on the test set was evaluated using the classification report, which 
+        provides detailed insights into precision, recall, F1-score, and 
+        support for each class. The model achieved an overall accuracy of 
+        <code>84%</code> across the test set, which is a strong result given 
+        the complexity of predicting binned categories.
+        <ul>
+            <li><b>Macro Average:</b> Both precision, recall, and 
+                F1-score are <code>0.84</code>, indicating balanced performance 
+                across all classes. This shows the model does not 
+                disproportionately favor any particular class.</li>
+            <li><b>Weighted Average:</b> The weighted average aligns 
+                with the macro average, as the class distribution is relatively 
+                even (as seen from the support values). This ensures that the 
+                model’s overall performance is not skewed by class 
+                imbalance.</li>
+            <li><b>Confusion between Classes 1 and 2:</b> The 
+                slightly lower F1-scores for Classes 1 and 2 suggest that there 
+                may be some overlap or confusion between these categories. This 
+                could stem from inherent similarities in the features of these 
+                bins, leading the model to misclassify instances between 
+                them.</li>
+            <li><b>Strength in Extreme Classes:</b> The model 
+                performs best on Classes 0 and 3, which likely represent the 
+                extreme ends of the binned ranges. This suggests that these 
+                classes have more distinct feature patterns, making them easier 
+                for the model to classify accurately.</li>
+        </ul>
+    </li>
+    <li><b>Final Notes:</b> We see that this model using SVD and 
+        logistic regression performed well with a high accuracy of about 
+        <code>84%</code>. This high accuracy suggests that the model 
+        generalizes well to unseen data.</li>
+</ul>
+<h3>Model 4</h3>
+<ul>
+    <li><b>Initial Thoughts:</b> Model 4 was influenced for 2 main 
+        reasons: validation of Model 3's high accuracy by increasing bin size 
+        and the use of a more complex model than the previous 3. By increasing 
+        the bin sizes from 4 to 10, a more robust model can be created without 
+        depending on logistic regression's safety net of guessing correctly due 
+        to being off by a few points. Additionally, an artificial neural 
+        network can improve on the basics of logistic regression and SVD 
+        classification by fine-tuning model parameters while ensuring that 
+        over/underfitting is less of a problem.</li>
+    <li><b>Initial Hyperparameter Tuning:</b> Due to the 
+        computationally heavy nature of <code>keras_tuner</code>. 
+        Hyperparameter tuning was done outside of this notebook in a more 
+        stable environment. Our 3 hidden layer model was inspired by previous 
+        ANNs created for homework 4 of our course. Each hidden layer was tuned 
+        using base nodes of 8, incrementing the first and second parameter by 8 
+        until the max node count of 64, for a total of 64 tests. Node 3 was 
+        adjusted to 12 due to showing higher performance after fine-tuning. 
+        Additionally, the learning rate was adjusted between the values of 
+        <code>10e-2</code> to <code>10e-6</code>. Since our training variables 
+        were quantitative and our predictions were quantitative, there was no 
+        need to tune any activation functions, as 
+        <code>relu, softmax, and sparse_categorical_crossentropy</code> are the 
+        ideal functions for this type of data. An <code>epoch</code> of 100 and 
+        a <code>batch_size</code> of 1000 were used to properly sample the 
+        data.</li>
+    <li><b>Model Performance:</b> After finding the optimal 
+        hyperparameters, the model was run and a confusion matrix was 
+        generated. Our model shows clear signs of proper predictions, while 
+        maintaining a low false positive and false negative rate. out of the 10 
+        categories, 6 showed a higher recall rate and 4 had a higher precision 
+        rate. This is favorable, as our model prefers to reduce cases of false 
+        negatives.</li>
+    <li><b>Calculating Correctness:</b> Model 4's performance was 
+        evaluated using the accuracy of the predictions. A baseline model that 
+        predicts only one class would have an average accuracy of 10%. Our 
+        model resulted in an average accuracy of <code>70%</code>, verifying 
+        that our model performs well above our baseline.
+        <pre class="python"><code>train_pred = estimator.predict(X_train)
+acc = accuracy_score(y_train, train_pred)
+print("Accuracy:", acc)</code></pre>
+    <img src="/Imgs/Model4/m4_3.png" alt="Results of KerasClassifier predictions on the training set" style="max-width: 200px;">
+    <br>
+    <small><i>Figure 3.1: Results of KerasClassifier predictions on the training set</i></small><br>
+    <li>In terms of where model 4 stands in our loss curves, our training 
+        predictions is slightly less than our test accuracy, although a .6% 
+        difference can be interpreted as significant. Due to these factors, our 
+        model shows no signs of overfitting or underfitting.</li>
+</ul>
+<h3>Final Notes:</h3>
+<p>Based on each of our model's performance, our ANN model produced surprising 
+    results. Increasing our model's classification task from 4 bins to 10 
+    slightly decreased our model's accuracy; however, 10 bins is a significant 
+    jump in classification, resulting in a stronger model altogether. 
+    Additionally, 2 tests were performed outside of this notebook to compare 
+    models 3 and 4.
+<ol>
+    <li>Model 3 run with 10 bins resulted in an accuracy of 40%</li>
+    <li>Model 4 run with 4 bins resulted in an accuracy of 90%. The results of 
+        these tests show that basic logistic regression from Model 3 is not 
+        enough to properly categorize large and complex data such as player 
+        stats.</li>
+</ol>
+</p>
+</section>
+<section class="sect5">
+<h2>5. Conclusion</h2>
+<p>This analysis highlights the progressive improvements and trade-offs made 
+    across the four models in predicting player performance based on key 
+    basketball statistics. By leveraging different modeling techniques, feature 
+    engineering, dimensionality reduction, and artificial neural network 
+    approaches, we were able to draw several key insights:</p>
+<h3>Model 1 (Baseline Linear Regression):</h3>
+<ul>
+    <li>The initial linear regression model, while achieving low MSE scores, 
+        relied heavily on a single feature (FGA) to minimize error. This 
+        indicated overfitting, as the model failed to generalize well across 
+        features.</li>
+    <li>Removing FGA increased the MSE but enabled the model to balance 
+        contributions from other features, resulting in a more interpretable 
+        and generalizable model.</li>
+</ul>
+<h3>Model 2 (Polynomial Regression):</h3>
+<ul>
+    <li>Introducing polynomial features of degree 3 improved the model's 
+        ability to capture non-linear relationships in the data, achieving high 
+        correctness rates within acceptable error margins.</li>
+    <li>Despite promising results, spikes in cross-validation errors exposed 
+        challenges with overfitting on certain subsets, indicating the need for 
+        further refinement.</li>
+</ul>
+<h3>Model 3 (SVD + Logistic Regression):</h3>
+<ul>
+    <li>Transitioning to a classification-based approach by binning PPG into 
+        performance tiers simplified the prediction task and improved 
+        interpretability.</li>
+    <li>Dimensionality reduction using SVD addressed the limitations of PCA and 
+        stabilized the logistic regression model, leading to a robust accuracy 
+        of 84% on the test set.</li>
+    <li>The confusion matrix and classification report revealed strong 
+        performance in the extreme bins, with minor misclassifications in 
+        mid-range bins likely due to feature overlap.</li>
+    <li>Despite strong classification using 4 bins, increasing bin sizes 
+        drastically reduces the model's performance.</li>
+</ul>
+<h3>Model 4 (ANN + K-fold CV):</h3>
+<ul>
+    <li>Similar to model 3, the transition of a regression approach to a 
+        classification model is bridged by performing multi-class logistic 
+        regression. The greater the number of classes, the better the results 
+        reflect on the model's ability to predict both linear and 
+        logistically.</li>
+    <li>Artificial neural networks using kerasClassification improved on the 
+        results of model 3, formulating a more convincing model and argument 
+        for correctly classifying player statistics per game.</li>
+    <li>The confusion matrix and classification report revealed strong 
+        performance in bins closest to the correct class, with very few 
+        misclassifications in non-adjacent bins.</li>
+    <li>10-fold Cross-Validation bolstered the model's performance, showing 
+        that the model can continue to perform well in unseen data.</li>
+    <li>Accuracy deltas between training and test data show that the model is 
+        neither overfit nor underfit, falling precisely on the optimal points 
+        in the error curve.</li>
+</ul>
+<h3>Final Recommendation</h3>
+<p>Model 4 stands out as the most effective approach for this problem, striking 
+    a balance between accuracy, generalizability, and interpretability. By 
+    focusing on classification rather than regression and leveraging 
+    dimensionality reduction, the model avoids overfitting while maintaining 
+    high performance. Future improvements could involve exploring ensemble 
+    methods or fine-tuning hyperparameters further to address the slight 
+    misclassification in mid-range bins.</p>
+<p>This progression underscores the importance of iterative experimentation, 
+    feature engineering, and appropriate evaluation metrics when tackling 
+    real-world machine learning problems.</p>
+</section>
+</section>
+<footer>
+    {% if site.github.is_project_page %}
+    <p class="view"><a href="{{ site.github.repository_url }}" target="_blank">View the Project on GitHub <small>{{ site.github.repository_nwo }}</small></a></p>
+    {% endif %}
+
+    {% if site.github.is_user_page %}
+    <p class="view"><a href="{{ site.github.owner_url }}" target="_blank">View My GitHub Profile</a></p>
+    {% endif %}
+
+    {% if site.show_downloads %}
+    <ul class="downloads">
+    <li><a href="{{ site.github.zip_url }}">Download <strong>ZIP File</strong></a></li>
+    <li><a href="{{ site.github.tar_url }}">Download <strong>TAR Ball</strong></a></li>
+    <li><a href="{{ site.github.repository_url }}">View On <strong>GitHub</strong></a></li>
+    </ul>
+    {% endif %}
+    {% if site.github.is_project_page %}
+    <p>This project is maintained by <a href="{{ site.github.owner_url }}" target="_blank">{{ site.github.owner_name }}</a></p>
+    {% endif %}
+    <p><small>Hosted on GitHub Pages</small></p>
+</footer>
+</div>
+</body>
+</html>
