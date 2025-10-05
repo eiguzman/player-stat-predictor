@@ -23,7 +23,7 @@ Our project focuses on developing a supervised learning model designed to predic
 - Offensive Box Plus-Minus (OBPM)
 - Offensive Win Shares (OWS)
 
-The [dataset](data/Seasons_Stats.csv) we used contained information collected from the 1950s on **24,000 NBA player seasons**, providing a good sample size to shape our model to.
+The [dataset](data/seasons_stats.csv) we used contained information collected from the 1950s on **24,000 NBA player seasons**, providing a good sample size to shape our model to.
 
 ## Key Insights
 This model aims to predict PPG by incorporating features that are less prone to early-season/bad shooting stretch variance which. It can account for temporary slumps (e.g., in shooting efficiency) and project a player's **overall scoring trajectory** for the season with greater stability.
@@ -40,7 +40,7 @@ This model aims to predict PPG by incorporating features that are less prone to 
 Main data exploration tools used were from numPy and Pandas libraries.
 - **Importing our data:** our data came in the form of an csv. We stored the file in our GitHub Repository and read it using:
   
- ```nbadf = pd.read_csv('CSE151AGroupProject/Seasons_Stats.csv')```
+ ```nbadf = pd.read_csv('CSE151AGroupProject/seasons_stats.csv')```
 
  - **Understanding Our Data**  
    - **Getting a baseline:** we executed several lines of code in order to understand our data better
@@ -53,7 +53,7 @@ Main data exploration tools used were from numPy and Pandas libraries.
 
 ## Data Exploration Results
 We first want to get a sense of how our dataset is like in terms of the values - the data type and number of null values. From looking at the first 20 values of our data, we see early NBA did not keep track of all statistics like they do now. As such we needed to consider how many null values we have in the dataset.
-![alt text](./Imgs/Data_Explolration/Head.png)
+![alt text](./images/data_explolration/exp_1.png)
 <div style="text-align: center;">
 <small><i>Figure 1.1: First 20 rows of the dataframe</i></small>
 </div>
@@ -63,7 +63,7 @@ We first want to get a sense of how our dataset is like in terms of the values -
 **Null Values**
 We count the number of null values for each attribute. This gives us an idea of what features are good to include into our model and how we should tackle the null values. We notice that `blanl` and `blank2` have the most missing values of greater than 20,000. There were also significant missing values in the Percentage of 3-Point Field Goal Percentage (`3P%`) of more than 9,000, followed by 3-Point Field Goals Attempted (`3PAr`), Games Started (`GS`), Team's Turnovers (`TOV`) and Usage Rate (`USG`) at about 5,000 data points each.
 
-<img src="./Imgs/Data_Explolration/NullValues.png" alt="Null Values" width="150">
+<img src="./images/data_explolration/exp_2.png" alt="Null Values" width="150">
 <div style="text-align: center;">
 <small><i>Figure 1.2: Top 28 Attributes with Null Values </i></small>
 </div>
@@ -84,7 +84,7 @@ plt.show()
 ```
  From the pairplot, we can see that Points (`PTS`) is generally normally distributed. We also observe a strong linear relationship between Points (`PTS`) and Field Goals Attempted (`FGA`), and Points (`PTS`) and Free Throws Attempted (`FTA`).
 
-![alt text](./Imgs/Data_Explolration/plot1.png)
+![alt text](./images/data_explolration/exp_3.png)
 <div style="text-align: center;">
 <small><i>Figure 1.3: Pair plot of Features</i></small>
 </div>
@@ -110,7 +110,7 @@ plt.show()
 
  The strongest correlations were between: Field Goals Attempted (`FGA`) and Points (`PTS`) at 0.99, followed by Minutes Played (`MP`) and Points (`PTS`), and Minutes Played (`MP`) and Field Goals Attempted (`FGA`) at 0.93.
 <div style="text-align: center;">
-    <img src="./Imgs/Data_Explolration/plot2.png" alt="plot2" style="width: 60%; height: auto;">
+    <img src="./images/data_explolration/exp_4.png" alt="plot2" style="width: 60%; height: auto;">
 </div>
 <div style="text-align: center;">
 <small><i>Figure 1.4: Correlation heatmap of dataset attributes</i></small>
@@ -120,7 +120,7 @@ plt.show()
 ## Preproccessing
 
 ### Steps Included:
-![Preproccessing](./Imgs/Processing_Code.png)
+![Preproccessing](./images/preprocessing/pre_1.png)
 <div style="text-align: center;">
 <small><i>Figure 1.5: Preprocessing Code</i></small>
 </div>
@@ -277,7 +277,7 @@ print('Cross-Validation Scores:', -cv_scores)
 
 ## Model 3
 In our third model, we decided to group the `PPG` into 4 different category and use the bins as our output instead.
-![alt text](/Imgs/Model3/bins.png)
+![alt text](/images/model_3/m3_1.png)
 <div style="text-align: center;">
 <small><i>Figure 1.6: Table showing the different bins</i></small>
 </div>
@@ -513,7 +513,7 @@ Due to the nature of hyperparameter tuning and its heavy usage of time and compu
 
 ## Data Preprocessing
 After all prepocessing was finished, our new dataframe ends up looking like: 
-![fafaf](./Imgs/DataPrep/DF.png)
+![fafaf](./images/data_prep/prep_1.png)
 <div style="text-align: center;">
 <small><i>Figure 2.1: Processed dataframe</i></small>
 </div>
@@ -521,7 +521,7 @@ After all prepocessing was finished, our new dataframe ends up looking like:
 
 The number of null values have become zero as desired as well:
 
-![fafaf](./Imgs/DataPrep/Null.png)
+![fafaf](./images/data_prep/prep_2.png)
 <div style="text-align: center;">
 <small><i>Figure 2.2: Number of null values for each feature</i></small>
 </div>
@@ -530,14 +530,14 @@ The number of null values have become zero as desired as well:
 Check that our X train and X test are normalized and sizes are looking right:
 
 <div style="text-align: center;">
-    <img src="./Imgs/Model1/XTrainScaled.png" alt="plot2" style="width: 100%; height: auto;">
+    <img src="./images/model_1/m1_1.png" alt="plot2" style="width: 100%; height: auto;">
 </div>
 <div style="text-align: center;">
 <small><i>Figure 2.3: XTrainScaled Table</i></small>
 </div>
 
 <div style="text-align: center;">
-    <img src="./Imgs/Model1/XTestScaled.png" alt="plot2" style="width: 100%; height: auto;">
+    <img src="./images/model_1/m1_2.png" alt="plot2" style="width: 100%; height: auto;">
 </div>
 <div style="text-align: center;">
 <small><i>Figure 2.4: XTestScaled Table</i></small>
@@ -546,7 +546,7 @@ Check that our X train and X test are normalized and sizes are looking right:
 
 We output the proportion of data points in our X_train and X_test below:
 <div style="text-align: center;">
-    <img src="./Imgs/Model1/split.png" alt="plot2" style="width: 100%; height: auto;">
+    <img src="./images/model_1/m1_3.png" alt="plot2" style="width: 100%; height: auto;">
 </div>
 <div style="text-align: center;">
   <small><i>Figure 2.5: proportions of X_train and X_test respectively</i></small><br>
@@ -561,7 +561,7 @@ Testing MSE: 0.50
 ```
 
 To find out why MSE was so low we plotted this correlation matrix.
-![a](./Imgs/Model1/Correlation.png)
+![a](./images/model_1/m1_4.png)
 <div style="text-align: center;">
   <small><i>Figure 2.6: Correlation matrix of features</i></small>
 </div>
@@ -601,12 +601,12 @@ Test MSE: 88.83
 
 We observe that the elbow of the fitting graph lies when the polynomial degree is 3.
 
-![a](./Imgs/Model2/FittingGraph.png)
+![a](./images/model_2/m2_1.png)
 <div style="text-align: center;">
   <small><i>Figure 2.7: Fitting Graph all 4 degrees</i></small>
 </div>
 
-![a](./Imgs/Model2/FittingGraph2.png)
+![a](./images/model_2/m2_2.png)
 <div style="text-align: center;">
   <small><i>Figure 2.8: Fitting Graph 3 degrees</i></small>
 </div>
@@ -649,12 +649,12 @@ Allowable Correctness : 90.62%
 
 We plot the following scree plot and cumulative explained variance plot to identify the number of components to retain in our model.
 
-![alt text](/Imgs/Model3/screeplot.png)
+![alt text](/images/model_3/m3_2.png)
 <div style="text-align: center;">
   <small><i>Figure 2.9: Screeplot generated from PCA</i></small>
 </div>
 
-![alt text](/Imgs/Model3/CumulativeExplainedVariancePlot.png)
+![alt text](/images/model_3/m3_3.png)
 <div style="text-align: center;">
   <small><i>Figure 2.10: Plot of Cumulative Explained Variance</i></small>
 </div>
@@ -665,7 +665,7 @@ From the above plots, we identified n_components=3 to be the best number of comp
 
 We plotted a PCA cluster plot to be able to identify the clustering. 
 
-![alt text](/Imgs/Model3/PCAclusters.png)
+![alt text](/images/model_3/m3_4.png)
 <div style="text-align: center;">
   <small><i>Figure 2.11: Plot of PCA clusters</i></small>
 </div>
@@ -673,12 +673,12 @@ We plotted a PCA cluster plot to be able to identify the clustering.
 
 We also used SVD to fit the 3 components. This is the visualisation of our SVD in the form of a pairplot, showing each of the 3 components of the left and right matrices that we have created.
 
-![alt text](/Imgs/Model3/LeftMatPairplot.png)
+![alt text](/images/model_3/m3_5.png)
 <div style="text-align: center;">
   <small><i>Figure 2.12: Pairplot of left matrix</i></small>
 </div>
 
-![alt text](/Imgs/Model3/RightMatPairplot.png)
+![alt text](/images/model_3/m3_6.png)
 <div style="text-align: center;">
   <small><i>Figure 2.13: Pairplot of right matrix</i></small>
 </div>
@@ -686,12 +686,12 @@ We also used SVD to fit the 3 components. This is the visualisation of our SVD i
 We implemented a logistic regression for our third model using the transformed SVD as inputs. 
 
 These are the output when we ran our train and test values:
-![alt text](/Imgs/Model3/logTrain.png)
+![alt text](/images/model_3/m3_7.png)
 <div style="text-align: center;">
   <small><i>Figure 2.14: Accuracy and Classification Report for Train</i></small>
 </div>
 
-![alt text](/Imgs/Model3/logTest.png)
+![alt text](/images/model_3/m3_8.png)
 <div style="text-align: center;">
   <small><i>Figure 2.15: Accuracy and Classification Report for Test</i></small>
 </div>
@@ -722,7 +722,7 @@ print("Precision for each class:", prec)
 print("Recall for each class:", rec)
 ```
 
-![alt text](/Imgs/Model4/m4_1.png)
+![alt text](/images/model_4/m4_1.png)
 <div style="text-align: center;">
   <small><i>Figure 2.16: Results of Model 4 KerasClassifier</i></small>
 </div>
@@ -754,7 +754,7 @@ print(f'Overall average accuracy: {average_accuracy:.4f}')
 
 ```
 
-![alt text](/Imgs/Model4/m4_2.png)
+![alt text](/images/model_4/m4_2.png)
 <div style="text-align: center;">
   <small><i>Figure 2.17: Results of Model 4 10-fold CrossValidation</i></small>
 </div>
@@ -920,7 +920,7 @@ print("Accuracy:", acc)
 
 ```
 
-![alt text](/Imgs/Model4/m4_3.png)
+![alt text](/images/model_4/m4_3.png)
 <div style="text-align: center;">
   <small><i>Figure 3.1: Results of KerasClassifier predictions on the training set</i></small>
 </div>
